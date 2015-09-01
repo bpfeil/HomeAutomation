@@ -1,0 +1,77 @@
+extends layout
+
+block content
+	h1(align='center') #{title}
+	div
+		h4
+			font(color='black')
+			| Door is 
+			text#doorState
+			// Button here
+			button#doorTrigger Trigger
+	div
+		h4
+			font(color='black')
+			| Last door activity was at 
+			text#lastActivityEventTime
+	div
+		button#settings(value='Settings', onclick="location.href='/settings'") Settings
+		button#settings(value='Log', onclick="location.href='/log'") Log
+		
+	script(src='/socket.io/socket.io.js')
+	script(src='http://code.jquery.com/jquery-latest.min.js ')
+	script.
+		var socket = io();
+		var allPage, socket;
+		console.log(document.URL);
+		if (document.URL == 'http://raspberrypiserv:8082/'){
+			socket = io.connect('http://raspberrypiserv:8082/root');
+			allPage = io.connect('http://raspberrypiserv:8082');
+		}
+		else if (document.URL == 'http://pfeilsplace.com:8000/'){
+			socket = io.connect('http://pfeilsplace.com:8000/root');
+			allPage = io.connect('http://pfeilsplace.com:8000');
+		}
+		socket = io.connect('localhost:3001');
+		allPage = io.connect('localhost:3001');
+		allPage.on('date', function(data){
+			$('#date').text(data.date);
+		});
+		allPage.on('Arduino', function(data){
+			$('#Arduino').text(data.Arduino);
+		});
+		socket.on('doorState', function(data){
+			$('#doorState').text(data.doorState);
+			var doorStatus = $('#doorState').text();
+			if (doorStatus == 'Open')
+				$('#doorTrigger').text('Close');
+			else if (doorStatus == 'Close')
+				$('#doorTrigger').text('Open');
+			else if (doorStatus == 'Moving')
+				$('#doorTrigger').text('Trigger');
+			else if (doorStatus == 'Unknown')
+				$('#doorTrigger').text('Trigger');
+			});
+		socket.on('lastActivityEventTime', function(data){
+			$('#lastActivityEventTime').text(data.lastActivityEventTime);
+		});
+		$(document).ready(function(){
+			socket.on('connect', function() {
+				$('#connection').text('Server: Connected');
+			});
+			socket.on('disconnect', function() {
+				$('#connection').text('Server: Disconnected');
+			});
+			$('#doorTrigger').click(function() {
+				socket.emit('trigger', {trigger: $('#doorTrigger').text()});
+				console.log($('#doorTrigger').text());
+			});
+		});
+block foot
+	div(align='right')
+		h4
+			text#connection
+			<br/>Current time is 
+			text#date
+			<br/>Arduino Connected: 
+			text#Arduino
