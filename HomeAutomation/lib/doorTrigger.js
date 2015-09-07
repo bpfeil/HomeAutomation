@@ -1,6 +1,21 @@
-var config = require('../config');
-var arduino = config.arudino || '192.168.1.178';
-var arduinoPort = config.arduinoPort || '80';
+var mongoose = require('mongoose'); //mongo connection
+var logger = require('./logger');
+var pushBullet = require('./pushBullet');
+var time = require('./time');
+
+var arduino, arduinoPort, accessKey, triggerAlerts;
+
+mongoose.model('GarageSettings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
+    if (err) {
+    	logger.error("Unable to get settings from DB");
+        return logger.error(err);
+    } else {
+    	arduino = settings.arduino;
+    	arduinoPort = settings.arduinoPort;
+    	accessKey = settings.accessKey;
+    	triggerAlerts = settings.triggerAlerts;
+    }
+});
 
 module.exports = {
 
@@ -10,11 +25,11 @@ module.exports = {
 
 		var options = {
 		  "method": "POST",
-		  "hostname": "192.168.1.178",
-		  "port": null,
+		  "hostname": arduino,
+		  "port": arduinoPort,
 		  "path": "/",
 		  "headers": {
-		    "access": "12badcie2181kdadfs8382280szdakyie332",
+		    "access": accessKey,
 		    "trigger": "True"
 		  }
 		};
@@ -26,16 +41,18 @@ module.exports = {
 		  });
 		  res.on("end", function () {
 			  var body = Buffer.concat(chunks);
-			  console.log(body.toString());
 			  callback(chunks);
 		  });
-		  console.log("something happens here")
-		})
+		  logger.debug("something happens here");
+          desc = "Door Triggered @ \n" + time.getDateTime1(new Date());
+		  pushNote("Garage Door", "Door Triggered", desc);
+		});
 		
 		req.on("error", function(error){
-			console.log("There was an error reaching the remote host");
+			logger.error("There was an error reaching the remote host - " + arduino + ":" + arduinoPort);
+			pushBullet.pushNote("Door Not Triggered", "Door not triggered because Arduino is disconnected");
             callback(error);
-		})
+		});
 
 		req.end();
 	}

@@ -6,7 +6,7 @@ var router = express.Router();
 //var mongoose = require('mongoose'); //mongo connection
 var bodyParser = require('body-parser'); //parses information from POST
 var methodOverride = require('method-override'); //used to manipulate POST
-var io = require('../io');
+var io = require('../socket.io/index.io');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(methodOverride(function(req, res){
@@ -21,7 +21,7 @@ router.use(methodOverride(function(req, res){
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', {
-	  title: "Pfeil's Place Garage"
+	  title: "Pfeil's Place"
 	});
 });
 

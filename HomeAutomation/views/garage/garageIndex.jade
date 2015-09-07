@@ -7,8 +7,11 @@ block content
 			font(color='black')
 			| Door is 
 			text#doorState
+			|  
+			</br>
 			// Button here
 			button#doorTrigger Trigger
+			button#settings(value='Door Trigger', onclick="location.href='/settings/garage'") Settings
 	div
 		h4
 			font(color='black')
@@ -16,7 +19,7 @@ block content
 			text#lastActivityEventTime
 	div
 		button#settings(value='Settings', onclick="location.href='/settings/garage'") Settings
-		button#settings(value='Log', onclick="location.href='/log'") Log
+		button#settings(value='Log', onclick="location.href='/garage/garageLog'") Log
 		
 	script(src='/socket.io/socket.io.js')
 	script(src='http://code.jquery.com/jquery-latest.min.js ')
@@ -32,7 +35,7 @@ block content
 			socket = io.connect('http://pfeilsplace.com:8000/root');
 			allPage = io.connect('http://pfeilsplace.com:8000');
 		}
-		socket = io.connect('localhost:3001');
+		socket = io.connect('localhost:3001/garage');
 		allPage = io.connect('localhost:3001');
 		allPage.on('date', function(data){
 			$('#date').text(data.date);
@@ -41,6 +44,7 @@ block content
 			$('#Arduino').text(data.Arduino);
 		});
 		socket.on('doorState', function(data){
+			console.log(data);
 			$('#doorState').text(data.doorState);
 			var doorStatus = $('#doorState').text();
 			if (doorStatus == 'Open')

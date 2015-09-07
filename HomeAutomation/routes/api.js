@@ -5,6 +5,7 @@ var bodyParser = require('body-parser'); //parses information from POST
 var methodOverride = require('method-override'); //used to manipulate POST
 var trigger = require('../lib/doorTrigger'); //used to trigger the door
 var logger = require('../lib/logger');
+var doorMonitor = require('../lib/doorMonitor');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(methodOverride(function(req, res){
@@ -65,6 +66,7 @@ router.route('/door')
     .post(function(req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
     	var state = req.body.doorState;
+    	doorMonitor.doorAlert(state);
         mongoose.model('DoorState').create({
             state : state,
             timeStamp : new Date()

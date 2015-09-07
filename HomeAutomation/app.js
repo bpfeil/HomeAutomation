@@ -2,15 +2,18 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var morgan = require('morgan');
-var logger = require('./lib/logger');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+//Databse setup
 var db = require('./model/db');
 var door = require('./model/door');
 var access = require('./model/access');
 var PB_DB = require('./model/pushBullet_DB');
+var garageSettings = require('./model/garageSettings');
 
 var config = require('./config');
+var logger = require('./lib/logger');
+var oplogWatcher = require('./lib/oplog_Watcher');
 
 var base = require('./routes/index');
 //var users = require('./routes/users');
@@ -19,8 +22,11 @@ var garage = require('./routes/garage');
 var settings = require('./routes/settings');
 
 var app = express();
-//call socket.io to the app
-app.io = require('./io');
+
+//call socket.io to the app for each route
+//app.io = require('./io');
+app.io = require('./socket.io/index.io');
+app.io = require('./socket.io/garage.io');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

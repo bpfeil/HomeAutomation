@@ -1,3 +1,5 @@
-
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://raspberrypi2/homeAutomation');
+var config = require('../config');
+var mongoServer = config.mongoServer;
+
+mongoose.connect('mongodb://' + mongoServer + '/homeAutomation');

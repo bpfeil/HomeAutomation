@@ -2,8 +2,7 @@
 
 
 ## Installation
-Install Node.js
-Install MongoDB
+Install Node.js, MongoDB
 ```
 npm install
 ```
