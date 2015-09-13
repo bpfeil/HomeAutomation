@@ -9,6 +9,7 @@ var currentDoorState = "Not set";
 var lastAlert = new Date();
 
 var getSettings = function(){
+	//get settings from DB
 	mongoose.model('GarageSettings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
 	    if (err) {
 	    	logger.error("Unable to get settings from DB");
@@ -73,7 +74,7 @@ module.exports = {
 		                option = "";
 		            }
 		            if (alerts === true){
-		            	//pushbullet.pushNote("Garage Door", event, desc);
+		            	pushbullet.pushNote("Garage Door", event, desc);
 		            }
 		            lastAlert = new Date();
 		            logger.debug('Updated last alert');

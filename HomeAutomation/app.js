@@ -4,19 +4,22 @@ var favicon = require('serve-favicon');
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var config = require('./config');
+
 //Databse setup
 var db = require('./model/db');
 var door = require('./model/door');
 var access = require('./model/access');
 var PB_DB = require('./model/pushBullet_DB');
 var garageSettings = require('./model/garageSettings');
+var doorBell = require('./model/doorBell');
 
-var config = require('./config');
+//Helper modules
 var logger = require('./lib/logger');
 var oplogWatcher = require('./lib/oplog_Watcher');
 
+//Route Setup
 var base = require('./routes/index');
-//var users = require('./routes/users');
 var api = require('./routes/api');
 var garage = require('./routes/garage');
 var settings = require('./routes/settings');
@@ -24,7 +27,6 @@ var settings = require('./routes/settings');
 var app = express();
 
 //call socket.io to the app for each route
-//app.io = require('./io');
 app.io = require('./socket.io/index.io');
 app.io = require('./socket.io/garage.io');
 
@@ -44,12 +46,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', base);
-//app.use('/users', users);
 app.use('/api', api);
 app.use('/garage', garage);
 app.use('/settings', settings);
-
-var server = app.listen(config.port);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

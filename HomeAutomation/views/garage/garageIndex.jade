@@ -11,7 +11,6 @@ block content
 			</br>
 			// Button here
 			button#doorTrigger Trigger
-			button#settings(value='Door Trigger', onclick="location.href='/settings/garage'") Settings
 	div
 		h4
 			font(color='black')
@@ -19,7 +18,7 @@ block content
 			text#lastActivityEventTime
 	div
 		button#settings(value='Settings', onclick="location.href='/settings/garage'") Settings
-		button#settings(value='Log', onclick="location.href='/garage/garageLog'") Log
+		button#settings(value='Log', onclick="location.href='/garage/log'") Log
 		
 	script(src='/socket.io/socket.io.js')
 	script(src='http://code.jquery.com/jquery-latest.min.js ')
@@ -27,16 +26,12 @@ block content
 		var socket = io();
 		var allPage, socket;
 		console.log(document.URL);
-		if (document.URL == 'http://raspberrypiserv:8082/'){
-			socket = io.connect('http://raspberrypiserv:8082/root');
-			allPage = io.connect('http://raspberrypiserv:8082');
+		if (document.URL == 'http://pfeilsplace.com:80/garage'){
+			socket = io.connect('http://pfeilsplace.com:80/garage');
+			allPage = io.connect('http://pfeilsplace.com:80');
 		}
-		else if (document.URL == 'http://pfeilsplace.com:8000/'){
-			socket = io.connect('http://pfeilsplace.com:8000/root');
-			allPage = io.connect('http://pfeilsplace.com:8000');
-		}
-		socket = io.connect('localhost:3001/garage');
-		allPage = io.connect('localhost:3001');
+		//socket = io.connect('localhost:3001/garage');
+		//allPage = io.connect('localhost:3001');
 		allPage.on('date', function(data){
 			$('#date').text(data.date);
 		});
@@ -49,7 +44,7 @@ block content
 			var doorStatus = $('#doorState').text();
 			if (doorStatus == 'Open')
 				$('#doorTrigger').text('Close');
-			else if (doorStatus == 'Close')
+			else if (doorStatus == 'Closed')
 				$('#doorTrigger').text('Open');
 			else if (doorStatus == 'Moving')
 				$('#doorTrigger').text('Trigger');

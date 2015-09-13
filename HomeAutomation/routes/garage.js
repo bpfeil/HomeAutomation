@@ -21,6 +21,12 @@ router.get('/', function(req, res, next) {
 	});
 });
 
+router.get('/log', function(req, res, next) {
+	  res.render('./garage/garageLog', {
+		  title: "Pfeil's Place Garage Log"
+		});
+	});
+
 
 
 module.exports = router;

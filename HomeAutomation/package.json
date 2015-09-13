@@ -1,9 +1,9 @@
 {
-  "name": "Garage_Door",
+  "name": "HomeAutomation",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "//start": "node ./bin/wwwio",
+  	"//start": "node ./bin/wwwio",
     "start": "nodemon ./bin/wwwio"
   },
   "dependencies": {

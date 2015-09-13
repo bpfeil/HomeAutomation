@@ -8,6 +8,7 @@ var oplog = MongoOplog('mongodb://' + mongoServer + ':27017/local').tail();
 
 var doorStateWatch = oplog.filter("homeAutomation.doorstates");
 var settingsWatch = oplog.filter("homeAutomation.garagesettings");
+var doorBell = oplog.filter("homeAutomation.doorbells");
 
 var doorState;
 

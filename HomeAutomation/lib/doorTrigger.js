@@ -1,3 +1,5 @@
+//Gets settings for Arduino communication and triggers door when called
+
 var mongoose = require('mongoose'); //mongo connection
 var logger = require('./logger');
 var pushBullet = require('./pushBullet');
@@ -35,6 +37,7 @@ module.exports = {
 		};
 
 		var req = http.request(options, function (res) {
+			console.log(options);
 		  var chunks = [];
 		  res.on("data", function (chunk) {
 			  chunks.push(chunk);
@@ -45,14 +48,19 @@ module.exports = {
 		  });
 		  logger.debug("something happens here");
           desc = "Door Triggered @ \n" + time.getDateTime1(new Date());
-		  pushNote("Garage Door", "Door Triggered", desc);
+		  pushBullet.pushNote("Garage Door", "Door Triggered", desc);
 		});
 		
 		req.on("error", function(error){
 			logger.error("There was an error reaching the remote host - " + arduino + ":" + arduinoPort);
-			pushBullet.pushNote("Door Not Triggered", "Door not triggered because Arduino is disconnected");
+			pushBullet.pushNote("Door Not Triggered", "Door not triggered because Arduino is offline");
             callback(error);
 		});
+		
+		req.setTimeout(2000,function () {
+			  req.abort();
+			  logger.info("timeout");
+			});
 
 		req.end();
 	}
