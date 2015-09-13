@@ -34,10 +34,10 @@ module.exports = {
 				} else {
 					devices.forEach(function(item){
 						userData = item.toObject();
-						console.log(userData.user);
+						//console.log(userData.user);
 						var apiKey = userData.API_KEY;
 						var pusher = new PushBullet(apiKey);
-						console.log(userData.PB_Data.devices);
+						//console.log(userData.PB_Data.devices);
 						userData.PB_Data.devices.forEach(function(device){
 							if (device.pushable === true && device.type != "chrome"){
 								var Title = App + " " + title;

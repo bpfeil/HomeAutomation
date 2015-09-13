@@ -42,7 +42,7 @@ router.route('/door')
               if (err) {
                   return logger.error(err);
               } else {
-            	  logger.debug(doorState);
+            	  //logger.debug(doorState);
                   //respond to both HTML and JSON. JSON responses require 'Accept: application/json;' in the Request Header
                   res.format({
                     /*html: function(){
@@ -51,7 +51,7 @@ router.route('/door')
                             "doorState" : doorState
                           });
                     },*/
-                    //JSON response will show all blobs in JSON format
+                    //JSON response
                     json: function(){
                         res.json({"doorStatus": doorState.state});
                     }
@@ -76,12 +76,11 @@ router.route('/door')
                   res.format({
                       //HTML response will set the location and redirect back to the home page. You could also create a 'success' page if that's your thing
                     html: function(){
-                        // If it worked, set the header so the address bar doesn't still say /adduser
                         res.location("door");
                         // And forward to success page
                         res.redirect("/doorState");
                     },
-                    //JSON response will show the newly created blob
+                    //JSON response
                     json: function(){
                         res.json(door);
                     }
@@ -141,7 +140,7 @@ router.route('/doorBell')
 .post(function(req, res) {
 	//Get post from web
 	var msg = req.body.doorBell;
-	console.log(msg);
+	//console.log(msg);
 	now = time.getDateTime1(new Date());
 	pushBullet.pushNote('Door Bell', 'Ding Dong', 'Someones at the door ' + now);
     mongoose.model('DoorBell').create({

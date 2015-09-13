@@ -26,12 +26,10 @@ block content
 		var socket = io();
 		var allPage, socket;
 		console.log(document.URL);
-		if (document.URL == 'http://pfeilsplace.com:80/garage'){
-			socket = io.connect('http://pfeilsplace.com:80/garage');
-			allPage = io.connect('http://pfeilsplace.com:80');
+		if (document.URL == 'http://pfeilsplace.com/garage'){
+			socket = io.connect('http://pfeilsplace.com/garage');
+			allPage = io.connect('http://pfeilsplace.com');
 		}
-		//socket = io.connect('localhost:3001/garage');
-		//allPage = io.connect('localhost:3001');
 		allPage.on('date', function(data){
 			$('#date').text(data.date);
 		});
