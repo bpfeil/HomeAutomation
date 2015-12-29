@@ -3,11 +3,13 @@ var router = express.Router();
 var mongoose = require('mongoose'); //mongo connection
 var bodyParser = require('body-parser'); //parses information from POST
 var methodOverride = require('method-override'); //used to manipulate POST
-var trigger = require('../lib/doorTrigger'); //used to trigger the door
 var logger = require('../lib/logger');
+var time = require('../lib/time');
+var trigger = require('../lib/doorTrigger'); //used to trigger the door
 var doorMonitor = require('../lib/doorMonitor');
 var pushBullet = require('../lib/pushBullet');
-var time = require('../lib/time');
+var updateNest = require('../lib/updateNest');
+
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(methodOverride(function(req, res){
@@ -99,6 +101,64 @@ router.get('/door/trigger/:id', function(req, res) {
     
 });
 
+router.get('/home', function(req, res){
+	var whoHome = [];
+	mongoose.model('Home').find({},{}, { sort: { _id : -1}}, function(err,who){
+		if (err) {
+	          logger.error(err);
+	     } else {
+	    	 console.log(who);
+	    	 who.forEach(function(item){
+	    		whoHome.push(item.home); 
+	    	 });
+	    	 res.format({
+	    		 json: function(){
+	    			 res.json({"Home": whoHome});
+	    		 }
+	    	 });
+	     }
+	});
+	
+});
+
+router.post('/home/checkin/:id', function(req, res) {
+	var who = req.user;
+	mongoose.model('Home').findOneAndUpdate({
+        home : who},
+        {timeStamp : new Date()},
+        {upsert: true},
+    function (err, home) {
+          if (err) {
+              res.send("There was a problem adding the information to the database.");
+              res.json({"Checkin": "Fail"});
+          } else {
+        	  res.format({
+        		  json: function(){
+        			  res.json({"Checkin": "Success", "Hello" : who});
+        		  }
+        	  });
+          }
+		});
+});
+
+router.post('/home/checkout/:id', function(req, res) {
+	var who = req.user;
+	mongoose.model('Home').findOneAndRemove({
+        home : who 	
+       }, function (err, home) {
+          if (err) {
+              res.send("There was a problem adding the information to the database.");
+              res.json({"Checkout": "Fail"});
+          } else {
+        	  res.format({
+        		  json: function(){
+        			  res.json({"Checkout": "Success", "Goodbye": who});
+        		  }
+        	  });
+          }
+		});
+});
+
 
 //route middleware to validate :id
 router.param('id', function(req, res, next, id) {
@@ -111,9 +171,9 @@ router.param('id', function(req, res, next, id) {
             logger.error(err);
             res.format({
                 html: function(){
-                	res.render('api/door', {
+                	res.render('api/denied', {
                     	title: 'Access Denied',
-                        "doorState" : 'Denied'
+                        "status" : 'Denied'
                     });
                 },
                 json: function(){
@@ -126,6 +186,7 @@ router.param('id', function(req, res, next, id) {
         	//logger.info(access);
             // once validation is done save the new item in the req
             req.id = id;
+            req.user = access.name;
             // go to the next thing
             next(); 
         } 

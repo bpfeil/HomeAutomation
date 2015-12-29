@@ -1,5 +1,5 @@
 var config = {
-port: 3002,
+port: 3001,
 secret: 'secret',
 mongoServer: 'pfeilhomeserver'
 };

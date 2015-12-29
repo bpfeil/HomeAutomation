@@ -1,5 +1,28 @@
 extends ../layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	h1= title
+	p Welcome to #{title}
+	#container
+	script(src='/socket.io/socket.io.js')
+	script(src='http://code.jquery.com/jquery-latest.min.js ')
+	script.
+		var socket = io();
+		var allPage, socket;
+		console.log(document.URL);
+		if (document.URL == 'http://pfeilsplace.com/garage/log'){
+			socket = io.connect('http://pfeilsplace.com/garage/log');
+			allPage = io.connect('http://pfeilsplace.com');
+		}
+		socket = io.connect('http://localhost:3002/garage/log');
+		allPage = io.connect('http://pfeilsplace.com');
+		allPage.on('date', function(data){
+			$('#date').text(data.date);
+		});
+		allPage.on('Arduino', function(data){
+			$('#Arduino').text(data.Arduino);
+		});
+		socket.on('log', function(data) {
+			console.log(data.log);
+			$('#container').prepend('<div>' + data.log + '</div>');
+		});

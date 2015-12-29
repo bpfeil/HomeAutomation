@@ -64,4 +64,25 @@ io.of('/garage').on('connection', function(socket){
      });
 });
 
+io.of('/garage/log').on('connection', function(socket){
+	console.log("here");
+	logger.streamer(function(logLine){
+		socket.emit('log', {'log': logLine});
+	});
+	//socket.emit('lastActivityEventTime', {lastActivityEventTime:getDateTime1(lastActivityEventTime)});
+    
+    /*
+    setInterval(function(){//send data every X seconds
+   	 watcher.exposedDoorState(function(state){
+   			socket.emit('doorState', {'doorState': state});
+   		});
+         //socket.emit('lastActivityEventTime', {lastActivityEventTime:getDateTime1(lastActivityEventTime)});
+    }, 5000);
+
+    socket.on('disconnect', function(data) {
+         socket.send('disconnected...');
+    });
+    */
+});
+
 module.exports = io;  

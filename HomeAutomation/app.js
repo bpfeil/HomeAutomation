@@ -13,10 +13,13 @@ var access = require('./model/access');
 var PB_DB = require('./model/pushBullet_DB');
 var garageSettings = require('./model/garageSettings');
 var doorBell = require('./model/doorBell');
+var home = require('./model/home');
+var nestAccess = require('./model/nestAccess');
 
 //Helper modules
 var logger = require('./lib/logger');
 var oplogWatcher = require('./lib/oplog_Watcher');
+var scheduler = require('./lib/scheduler');
 
 //Route Setup
 var base = require('./routes/index');
@@ -49,6 +52,9 @@ app.use('/', base);
 app.use('/api', api);
 app.use('/garage', garage);
 app.use('/settings', settings);
+
+//console.log(app.listen(app.get('port')));
+//console.log("Express server listening on port %d", app.address().port);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

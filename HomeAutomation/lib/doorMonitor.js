@@ -1,4 +1,4 @@
-var config = require('../config');
+//var config = require('../config');
 var logger = require('./logger');
 var pushbullet = require('./pushBullet');
 var mongoose = require('mongoose'); //mongo connection

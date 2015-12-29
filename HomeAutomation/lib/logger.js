@@ -33,8 +33,13 @@ var logger = new winston.Logger({
     ],
     exitOnError: false
 });
-
+/*
+var streamer = winston.stream({ start: -10}).on(logDirectory + '/all-logs.log', function(log) {
+	//console.log(log);
+});
+*/
 module.exports = logger;
+//module.exports = streamer;
 module.exports.stream = {
 		write: function(message, encoding){
         logger.info(message);

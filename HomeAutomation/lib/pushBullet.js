@@ -28,35 +28,67 @@ module.exports = {
 		},
 
 		pushNote: function pushNote(App, title, body, callback){  //Take out devices,  need to pull these in the beginning from DB
+			var Title = App + " " + title;
 			mongoose.model('PushBullet').find({},{}, { sort: { _id : -1}}, function(err,devices){
 				if (err) {
 					logger.error(err);
 				} else {
 					devices.forEach(function(item){
 						userData = item.toObject();
-						//console.log(userData.user);
 						var apiKey = userData.API_KEY;
 						var pusher = new PushBullet(apiKey);
-						//console.log(userData.PB_Data.devices);
 						userData.PB_Data.devices.forEach(function(device){
 							if (device.pushable === true && device.type != "chrome"){
-								var Title = App + " " + title;
 								pusher.note(device.iden, Title, body, function(error, response) {
 									if (error){
 										logger.error(error);
 									}
 									else {
-										console.log("success");
 										logger.info("Pushbullet was successful");
-										//logger.debug(response);
+										logger.info("Pushed note to " + userData.user + "'s " + device.nickname);
 									}
 								});
-								logger.info("Pushed note to " + userData.user + "'s " + device.nickname);
 							}
 						});
 					});
 				}
 			});
-		}
+		},
 		
+		updateDevices: function updateDevices(callback){ //get devices from PushBullet and log to local DB
+			mongoose.model('PushBullet').find({},{}, { sort: { _id : -1}}, function(err,user){
+			     if (err) {
+			          logger.error(err);
+			     } else {
+			    	 user.forEach(function(item){
+			    		 userData = item.toObject();
+			    		 var user = userData.user;
+			    		 var apiKey = userData.API_KEY;
+			    		 
+			    		 var pusher = new PushBullet(apiKey);
+			    		 
+			    		 pusher.devices(function(error, response){
+			    			 if (error){
+			    				 logger.error(error);
+			    			 }
+					         else {
+					        	  logger.info(response);
+					        	  //mongoose.model('PushBullet').update({
+					        	  mongoose.model('PushBullet').findOneAndUpdate({
+					        		  user : user,
+					        		  API_KEY : apiKey},
+					                  {PB_Data : response},
+					                  function (err, entry) {
+					            	  if (err){
+					            		  logger.error(err);
+					            	  }else {
+					            		  logger.info("Successfully upadated data for " + user + "!");
+					            	  }
+					              });
+					          }
+					     });
+			          });
+			     }
+			});
+		},
 };

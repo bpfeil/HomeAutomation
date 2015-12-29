@@ -18,13 +18,17 @@ router.use(methodOverride(function(req, res){
       }
 }));
 
+
+router.get('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: /");
+});
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', {
 	  title: "Pfeil's Place"
 	});
 });
-
-
 
 module.exports = router;
