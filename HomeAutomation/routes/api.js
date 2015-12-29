@@ -27,7 +27,7 @@ router.route('/')
 		res.format({
           html: function(){
               res.render('api/index', {
-              	title: 'doorStates',
+              	title: 'API Root',
                   "API" : "API"
                 });
           },
