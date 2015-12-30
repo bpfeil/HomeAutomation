@@ -44,8 +44,17 @@ mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, fun
 
 module.exports = {
 	doorAlert: function doorStateAlert(doorState){
+		var action;
 		now = new Date();
 		if (doorState != currentDoorState){
+			if (currentDoorState == "Closed"){
+				action = "Opening";
+			}
+			else if(currentDoorState == "Open"){
+				action = "Closing";
+			}
+			var desc = "Door changed from " + currentDoorState + " to " + doorState;
+			pushbullet.pushNote("Garage Door", action, desc);
 			logger.debug("Resetting doorstate from " + currentDoorState + " to " + doorState);
 			currentDoorState = doorState;
 			lastDoorStateChange = new Date();
