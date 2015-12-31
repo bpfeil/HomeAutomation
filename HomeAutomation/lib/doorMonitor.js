@@ -44,7 +44,7 @@ mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, fun
 
 module.exports = {
 	doorAlert: function doorStateAlert(doorState){
-		var action;
+		var action, desc;
 		now = new Date();
 		if (doorState != currentDoorState){
 			if (currentDoorState == "Closed"){
@@ -53,7 +53,7 @@ module.exports = {
 			else if(currentDoorState == "Open"){
 				action = "Closing";
 			}
-			var desc = "Door changed from " + currentDoorState + " to " + doorState;
+			desc = "Door changed from " + currentDoorState + " to " + doorState;
 			pushbullet.pushNote("Garage Door", action, desc);
 			logger.debug("Resetting doorstate from " + currentDoorState + " to " + doorState);
 			currentDoorState = doorState;
@@ -63,7 +63,7 @@ module.exports = {
 		    if (doorState == "Unknown" || doorState == "Moving"|| doorState == "Open"){
 		    	if (now - lastAlert > alertTime && alertTime > 0){
 		    		var event = "!**" + doorState + "**!";
-		            var desc = "Door " + doorState + " for over ";
+		            desc = "Door " + doorState + " for over ";
 		            var time = now - lastDoorStateChange;
 		            var hrs = Math.floor(time/(60*60*1000));
 		            var mins = Math.floor(time/(60*1000));

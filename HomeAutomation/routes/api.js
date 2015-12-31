@@ -8,7 +8,7 @@ var time = require('../lib/time');
 var trigger = require('../lib/doorTrigger'); //used to trigger the door
 var doorMonitor = require('../lib/doorMonitor');
 var pushBullet = require('../lib/pushBullet');
-var updateNest = require('../lib/updateNest');
+var worker = require('../lib/worker');
 
 
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -64,6 +64,7 @@ router.route('/door')
     //POST a doorState
     .post(function(req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
+    	worker.arduinoWatcher(req.hostname);
     	var state = req.body.doorState;
     	doorMonitor.doorAlert(state);
         mongoose.model('DoorState').create({
@@ -77,11 +78,11 @@ router.route('/door')
                   logger.debug('POST creating new doorState: ' + door);
                   res.format({
                       //HTML response will set the location and redirect back to the home page. You could also create a 'success' page if that's your thing
-                    html: function(){
+                    /*html: function(){
                         res.location("door");
                         // And forward to success page
                         res.redirect("/doorState");
-                    },
+                    },*/
                     //JSON response
                     json: function(){
                         res.json(door);
@@ -132,6 +133,7 @@ router.post('/home/checkin/:id', function(req, res) {
               res.send("There was a problem adding the information to the database.");
               res.json({"Checkin": "Fail"});
           } else {
+        	  worker.home("checkin");
         	  res.format({
         		  json: function(){
         			  res.json({"Checkin": "Success", "Hello" : who});
@@ -150,6 +152,7 @@ router.post('/home/checkout/:id', function(req, res) {
               res.send("There was a problem adding the information to the database.");
               res.json({"Checkout": "Fail"});
           } else {
+        	  worker.home("checkout");
         	  res.format({
         		  json: function(){
         			  res.json({"Checkout": "Success", "Goodbye": who});
