@@ -9,8 +9,15 @@ var lastAlert = new Date();
 
 var arduinoWatcher = function(hostname){
 	logger.debug(hostname);
+	if (hostname == "GarageArduino"){
+		lastCommunication = new Date();
+	}
 	
-	lastCommunication = new Date();
+	else{
+		console.error("Hostname not what is expected!");
+	}
+	
+	//lastCommunication = new Date();
 };
 
 var home = function(status, callback){
@@ -18,6 +25,7 @@ var home = function(status, callback){
 		if (err) {
 	          logger.error(err);
 	     } else {
+	    	 //Need to fix this section.  When no one is home or just one person is home the check in/out still happens
 	    	if(count === 0){
 	    		if(status == "checkout"){
 	    			 updateNest.setNestAwayStatus("away", function(response){

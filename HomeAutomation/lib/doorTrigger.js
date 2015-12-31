@@ -46,7 +46,7 @@ module.exports = {
 			  var body = Buffer.concat(chunks);
 			  callback(chunks);
 		  });
-		  logger.debug("something happens here");
+		  //logger.debug("something happens here");
           desc = "Door Triggered @ \n" + time.getDateTime1(new Date());
 		  pushBullet.pushNote("Garage Door", "Door Triggered", desc);
 		});

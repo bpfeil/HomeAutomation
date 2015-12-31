@@ -9,6 +9,7 @@ var trigger = require('../lib/doorTrigger'); //used to trigger the door
 var doorMonitor = require('../lib/doorMonitor');
 var pushBullet = require('../lib/pushBullet');
 var worker = require('../lib/worker');
+var updateNest = require('../lib/updateNest');
 
 
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -47,12 +48,6 @@ router.route('/door')
             	  //logger.debug(doorState);
                   //respond to both HTML and JSON. JSON responses require 'Accept: application/json;' in the Request Header
                   res.format({
-                    /*html: function(){
-                        res.render('api/door', {
-                        	title: 'doorStates',
-                            "doorState" : doorState
-                          });
-                    },*/
                     //JSON response
                     json: function(){
                         res.json({"doorStatus": doorState.state});
@@ -64,7 +59,7 @@ router.route('/door')
     //POST a doorState
     .post(function(req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
-    	worker.arduinoWatcher(req.hostname);
+    	worker.arduinoWatcher(req.headers.host);
     	var state = req.body.doorState;
     	doorMonitor.doorAlert(state);
         mongoose.model('DoorState').create({
@@ -77,12 +72,6 @@ router.route('/door')
                   //DB entry has been created
                   logger.debug('POST creating new doorState: ' + door);
                   res.format({
-                      //HTML response will set the location and redirect back to the home page. You could also create a 'success' page if that's your thing
-                    /*html: function(){
-                        res.location("door");
-                        // And forward to success page
-                        res.redirect("/doorState");
-                    },*/
                     //JSON response
                     json: function(){
                         res.json(door);
@@ -108,13 +97,12 @@ router.get('/home', function(req, res){
 		if (err) {
 	          logger.error(err);
 	     } else {
-	    	 console.log(who);
 	    	 who.forEach(function(item){
-	    		whoHome.push(item.home); 
+	    		whoHome.push(item.home);
 	    	 });
 	    	 res.format({
 	    		 json: function(){
-	    			 res.json({"Home": whoHome});
+	    			 res.json({"Home": whoHome.toString()});
 	    		 }
 	    	 });
 	     }
@@ -122,7 +110,7 @@ router.get('/home', function(req, res){
 	
 });
 
-router.post('/home/checkin/:id', function(req, res) {
+router.get('/home/checkin/:id', function(req, res) {
 	var who = req.user;
 	mongoose.model('Home').findOneAndUpdate({
         home : who},
@@ -143,7 +131,7 @@ router.post('/home/checkin/:id', function(req, res) {
 		});
 });
 
-router.post('/home/checkout/:id', function(req, res) {
+router.get('/home/checkout/:id', function(req, res) {
 	var who = req.user;
 	mongoose.model('Home').findOneAndRemove({
         home : who 	
@@ -160,6 +148,27 @@ router.post('/home/checkout/:id', function(req, res) {
         	  });
           }
 		});
+});
+
+router.get('/home/nestStatus', function(req, res){
+	updateNest.getNestAwayStatus(function(response){
+		res.format({
+			json: function(){
+				res.json({"NestStatus" : response});
+			}
+		});
+	});
+});
+
+router.get('/home/nestData', function(req, res){
+	updateNest.getHouseData(function(response){
+		console.log(response);
+		res.format({
+			json: function(){
+				res.send(response);
+			}
+		});
+	});
 });
 
 

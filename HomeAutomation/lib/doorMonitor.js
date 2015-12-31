@@ -46,6 +46,7 @@ module.exports = {
 	doorAlert: function doorStateAlert(doorState){
 		var action, desc;
 		now = new Date();
+		//Need to clean this up, get multiple alerts for when the door starts motion (initial change, moving, last change)
 		if (doorState != currentDoorState){
 			if (currentDoorState == "Closed"){
 				action = "Opening";
