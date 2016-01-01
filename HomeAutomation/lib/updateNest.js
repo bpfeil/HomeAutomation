@@ -131,19 +131,17 @@ var getHouseData = function(callback){
 		else {
 			getHouseTemp(data,function(temp){
 				currentTemp = temp;
-				console.log(currentTemp);
+				//console.log(currentTemp);
 				getSetTemp(data, function(setTemp){
 					currentSetTemp = setTemp;
-					console.log(setTemp);
+					//console.log(setTemp);
 					getHouseHumidity(data, function(humidity){
 						currentHumidity = humidity;
-						console.log(humidity);
+						//console.log(humidity);
 						getNestAwayStatus(function(status){
 							homeStatus = status;
-							console.log(homeStatus);
+							//console.log(homeStatus);
 							callbackString = JSON.stringify({"Current_Temp": currentTemp, "Nest_Set_Temp": currentSetTemp, "Current_Humidity": currentHumidity, "Home_Status": homeStatus});
-							//console.log(JSON.stringify({"Humidity" : data.device[deviceId].current_humidity}));
-							//return callback(currentTemp, currentSetTemp, currentHumidity, homeStatus);
 							return callback(callbackString);
 						});
 					});
@@ -163,30 +161,5 @@ module.exports = {
 	setNestAwayStatus: setNestAwayStatus,
 	
 	getHouseData: getHouseData,
-	
-	/*for (var key in structure){
-	console.log(key);
-}*/
-
-/*for (var structure in data.structure){
-	if(data.structure.hasOwnProperty(away)){
-		var status = data.structure.hasOwnProperty(away);
-		logger.debug(status);
-	}
-}*/
-
-/*for (var deviceId in data.device) {
-    if (data.device.hasOwnProperty(deviceId)) {
-    	logger.info(deviceId);
-        var device = data.shared[deviceId];
-        logger.info(device);
-        // here's the device and ID
-        //nest.setTemperature(deviceId, nest.ftoc(70));
-        nest.setHome();
-        //nest.setAway();
-        
-    }
-}*/
-
 
 };

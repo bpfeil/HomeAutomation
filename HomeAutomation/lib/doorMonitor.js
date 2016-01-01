@@ -46,17 +46,23 @@ module.exports = {
 	doorAlert: function doorStateAlert(doorState){
 		var action, desc;
 		now = new Date();
-		//Need to clean this up, get multiple alerts for when the door starts motion (initial change, moving, last change)
+		//Need to clean this up, get multiple alerts for when the door starts motion (initial change, moving, last change)yr
 		if (doorState != currentDoorState){
 			if (currentDoorState == "Closed"){
 				action = "Opening";
 			}
-			else if(currentDoorState == "Open"){
+			/*else if(currentDoorState == "Open"){
 				action = "Closing";
 			}
-			desc = "Door changed from " + currentDoorState + " to " + doorState;
-			pushbullet.pushNote("Garage Door", action, desc);
-			logger.debug("Resetting doorstate from " + currentDoorState + " to " + doorState);
+			else if (currentDoorState == "Moving"){
+				action = doorState;
+			}*/
+			if (currentDoorState == "Closed"){
+				desc = "Door changed from " + currentDoorState + " to " + doorState;
+				pushbullet.pushNote("Garage Door", action, desc);
+				logger.debug("Resetting doorstate from " + currentDoorState + " to " + doorState);
+				
+			}
 			currentDoorState = doorState;
 			lastDoorStateChange = new Date();
 		}
@@ -92,5 +98,6 @@ module.exports = {
 		    }
 		}
 	},
+	
 	getSettings: getSettings
 };

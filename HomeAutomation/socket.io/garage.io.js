@@ -5,10 +5,6 @@ var watcher = require('../lib/oplog_Watcher');
 var mongoose = require('mongoose'); //mongo connection
 var trigger = require('../lib/doorTrigger'); //used to trigger the door
 
-//Start listening for socket event on the logger
-logger.on("socket", function () {
-  this.socketIO = loggerSocket;
-});
 
 //start listen with socket.io
 io.on('connection', function(socket){  

@@ -72,6 +72,7 @@ module.exports = {
 				if (err) {
 					logger.error(err);
 				} else {
+					logger.info("Sending alert of " + title);
 					users.forEach(function(item){
 						userData = item.toObject();
 						var apiKey = userData.API_KEY;

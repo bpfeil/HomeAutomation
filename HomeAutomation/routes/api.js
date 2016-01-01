@@ -97,9 +97,15 @@ router.get('/home', function(req, res){
 		if (err) {
 	          logger.error(err);
 	     } else {
-	    	 who.forEach(function(item){
-	    		whoHome.push(item.home);
-	    	 });
+	    	 console.log(who.length);
+	    	 if (who.length > 0){
+	    		 who.forEach(function(item){
+	    			 whoHome.push(item.home);
+	    		 });
+	    	 }
+	    	 else {
+	    		 whoHome = "No One";
+	    	 }
 	    	 res.format({
 	    		 json: function(){
 	    			 res.json({"Home": whoHome.toString()});

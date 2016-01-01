@@ -14,10 +14,8 @@ var arduinoWatcher = function(hostname){
 	}
 	
 	else{
-		console.error("Hostname not what is expected!");
+		logger.warn("Recieved a door post that wasn't from the GarageArduino");
 	}
-	
-	//lastCommunication = new Date();
 };
 
 var home = function(status, callback){
@@ -47,7 +45,7 @@ var home = function(status, callback){
 setInterval(function(){//After 300 seconds
 	if ((new Date() - lastCommunication) > 300000){
 		if ((new Date() - lastAlert) > 300000){
-			pushbullet.pushNote("Arduino Lost", "Arduino Lost", "Arduino lost at " + lastCommunication);
+			pushbullet.pushNote("Arduino Lost", "Connection", "Arduino lost at " + lastCommunication);
 			lastAlert = new Date();
 		}
 	}

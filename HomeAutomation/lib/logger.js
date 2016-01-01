@@ -29,10 +29,11 @@ var logger = new winston.Logger({
             handleExceptions: true,
             json: false,
             colorize: true
-        })
+        }),
     ],
     exitOnError: false
 });
+
 /*
 var streamer = winston.stream({ start: -10}).on(logDirectory + '/all-logs.log', function(log) {
 	//console.log(log);
