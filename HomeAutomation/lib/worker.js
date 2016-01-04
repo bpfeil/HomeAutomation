@@ -99,7 +99,7 @@ module.exports = {
 				mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
 			         if (err) {
 			             logger.error(err);
-			             return callback(doorState);
+			             return callback(time);
 			         } else {
 			        	 return callback(doorState.timeStamp.toLocaleString());
 			         }

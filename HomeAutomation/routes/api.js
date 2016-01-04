@@ -156,7 +156,7 @@ router.get('/home/checkout/:id', function(req, res) {
         home : who 	
        }, function (err, home) {
           if (err) {
-              res.send("There was a problem adding the information to the database.");
+              res.send("There was a problem removing the information from the database.");
               res.json({"Checkout": "Fail"});
           } else {
         	  worker.home("checkout");

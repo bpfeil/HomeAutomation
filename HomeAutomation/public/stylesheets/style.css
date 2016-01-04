@@ -7,8 +7,8 @@ font : 73% "Trebuchet MS", Arial,  Helvetica, Tahoma, sans-serif;
 background : #fff;
 color : #555;
 }
-			/*Content*/
-#content {
+			/*Wrap*/
+#wrap {
 width: 100%;
 margin-left: auto;
 margin-right: auto;

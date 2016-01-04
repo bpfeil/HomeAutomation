@@ -67,6 +67,9 @@ block content
 						allPage.on('date', function(data){
 							$('#date').text(data.date);
 						});
+						allPage.on('Arduino', function(data){
+							$('#Arduino').text(data.Arduino);
+						});
 						socket.on('Alerts', function(data){
 							if (data.Alerts == true){
 								$('#alerts').prop('checked', true);
