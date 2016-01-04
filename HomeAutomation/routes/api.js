@@ -61,24 +61,37 @@ router.route('/door')
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
     	worker.arduinoWatcher(req.headers.host);
     	var state = req.body.doorState;
+    	logger.debug('POST creating new doorState: ' + state);
     	doorMonitor.doorAlert(state);
-        mongoose.model('DoorState').create({
-            state : state,
-            timeStamp : new Date()
-        }, function (err, door) {
-              if (err) {
-                  res.send("There was a problem adding the information to the database.");
-              } else {
-                  //DB entry has been created
-                  logger.debug('POST creating new doorState: ' + door);
-                  res.format({
+    	worker.exposedDoorState(function(dbState){
+    		if (dbState != state){
+    			mongoose.model('DoorState').create({
+    	            state : state,
+    	            timeStamp : time.getDateTime1(new Date())
+    	        }, function (err, door) {
+    	              if (err) {
+    	                  res.send("There was a problem adding the information to the database.");
+    	              } else {
+    	                  //DB entry has been created
+    	                  res.format({
+    	                    //JSON response
+    	                    json: function(){
+    	                        res.json(door);
+    	                    }
+    	                });
+    	              }
+    	        });
+    		}
+    		else {
+    			console.log("no need to update");
+    			res.format({
                     //JSON response
                     json: function(){
-                        res.json(door);
+                        res.json(state);
                     }
-                });
-              }
-        });
+    			});
+    		}
+    	});
     });
 
 router.get('/door/trigger/:id', function(req, res) {
@@ -120,7 +133,7 @@ router.get('/home/checkin/:id', function(req, res) {
 	var who = req.user;
 	mongoose.model('Home').findOneAndUpdate({
         home : who},
-        {timeStamp : new Date()},
+        {timeStamp : time.getDateTime1(new Date())},
         {upsert: true},
     function (err, home) {
           if (err) {
@@ -168,7 +181,7 @@ router.get('/home/nestStatus', function(req, res){
 
 router.get('/home/nestData', function(req, res){
 	updateNest.getHouseData(function(response){
-		console.log(response);
+		//console.log(response);
 		res.format({
 			json: function(){
 				res.send(response);

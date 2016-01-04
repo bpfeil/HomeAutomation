@@ -2,8 +2,24 @@ doctype html
 html
 	head
 		title= title
-		link(rel='stylesheet', href='/stylesheets/style.css')
+		link(rel='stylesheet', href='/stylesheets/style.css', type='text/css')
 	body
+		div.content
+			#header
+				h1 Pfeil's Place
+				#menucontainer
+					#menunav
+						ul
+							li: a(href='/') Home
+							li: a(href='/garage') Garage
+							li: a(href='/settings') Settings
 		block content
-	footer
-		block foot
+		#footer
+			a(href='/') Home
+			&nbsp; | 
+			a(href='/garage') Garage
+			&nbsp; | 
+			a(href='/settings') Settings
+			</br>
+			|Copyright &copy 2015 Ben Pfeil
+			

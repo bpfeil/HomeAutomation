@@ -9,7 +9,7 @@ var nestUser, nestPsw;
 var getNestCred = function(){
 	mongoose.model('NestAccess').findOne({},{}, { sort: { _id : -1}}, function(err, data){
 	     if (err) {
-	         logger.error("Unable to get credentials from DB"); 
+	         logger.error("Unable to get nest credentials from DB"); 
 	    	 logger.error(err);
 	     } else {
 	    	 nestUser = data.nestUser;
@@ -23,12 +23,12 @@ var nestLogin = function(nestUser, nestPsw, callback){
 		//logger.info(nestUser);
 		//logger.info(nestPsw);
 	    if (err) {
-	    	logger.error("LOGIN ERROR");
+	    	logger.error("NEST LOGIN ERROR");
 	        logger.error(err.message);
 	        process.exit(1);
 	        return;
 	    } else {
-	    	logger.debug("login success!");
+	    	logger.debug("Nest login success!");
 	    	callback(null, data);
 	    }
 	});
@@ -37,7 +37,7 @@ var nestLogin = function(nestUser, nestPsw, callback){
 var getNestAwayStatus = function(callback){
 	nestLogin(nestUser,nestPsw, function (err, data){
 		if (err){
-			return ("Login Error");
+			return ("Nest Login Error");
 		}
 		else {
 			nest.fetchStatus(function(data) {
@@ -60,7 +60,7 @@ var getNestAwayStatus = function(callback){
 var setNestAwayStatus = function(state, callback){
 	nestLogin(nestUser,nestPsw, function (err, data){
 		if (err){
-			return ("Login Error");
+			return ("Nest Login Error");
 		}
 		else {
 			nest.fetchStatus(function(data) {

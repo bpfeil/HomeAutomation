@@ -29,9 +29,8 @@ var settings = require('./routes/settings');
 
 var app = express();
 
-//call socket.io to the app for each route
-app.io = require('./socket.io/index.io');
-app.io = require('./socket.io/garage.io');
+//call socket.io to the app
+app.io = require('./socket.io/io');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -46,15 +45,12 @@ app.use(morgan('combined', {stream: logger.stream}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/public')));
 
 app.use('/', base);
 app.use('/api', api);
 app.use('/garage', garage);
 app.use('/settings', settings);
-
-//console.log(app.listen(app.get('port')));
-//console.log("Express server listening on port %d", app.address().port);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

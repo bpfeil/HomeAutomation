@@ -1,76 +1,89 @@
 extends ../layout
 
 block content
-	h1(align='center') #{title}
-	div
-		h4
-			font(color='black')
-			| Door is 
-			text#doorState
-			|  
-			</br>
-			// Button here
-			button#doorTrigger Trigger
-	div
-		h4
-			font(color='black')
-			| Last door activity was at 
-			text#lastActivityEventTime
-	div
-		button#settings(value='Settings', onclick="location.href='/settings/garage'") Settings
-		button#settings(value='Log', onclick="location.href='/garage/log'") Log
-	div
-		img(src= "http://pfeilsplace.com:8765/picture/4/frame/")
-		
-	script(src='/socket.io/socket.io.js')
-	script(src='http://code.jquery.com/jquery-latest.min.js ')
-	script.
-		var socket = io();
-		var allPage, socket;
-		console.log(document.URL);
-		if (document.URL == 'http://pfeilsplace.com/garage'){
-			socket = io.connect('http://pfeilsplace.com/garage');
-			allPage = io.connect('http://pfeilsplace.com');
-		}
-		allPage.on('date', function(data){
-			$('#date').text(data.date);
-		});
-		allPage.on('Arduino', function(data){
-			$('#Arduino').text(data.Arduino);
-		});
-		socket.on('doorState', function(data){
-			console.log(data);
-			$('#doorState').text(data.doorState);
-			var doorStatus = $('#doorState').text();
-			if (doorStatus == 'Open')
-				$('#doorTrigger').text('Close');
-			else if (doorStatus == 'Closed')
-				$('#doorTrigger').text('Open');
-			else if (doorStatus == 'Moving')
-				$('#doorTrigger').text('Trigger');
-			else if (doorStatus == 'Unknown')
-				$('#doorTrigger').text('Trigger');
-			});
-		socket.on('lastActivityEventTime', function(data){
-			$('#lastActivityEventTime').text(data.lastActivityEventTime);
-		});
-		$(document).ready(function(){
-			socket.on('connect', function() {
-				$('#connection').text('Server: Connected');
-			});
-			socket.on('disconnect', function() {
-				$('#connection').text('Server: Disconnected');
-			});
-			$('#doorTrigger').click(function() {
-				socket.emit('trigger', {trigger: $('#doorTrigger').text()});
-				console.log($('#doorTrigger').text());
-			});
-		});
-block foot
-	div(align='right')
-		h4
-			text#connection
-			<br/>Current time is 
-			text#date
-			<br/>Arduino Connected: 
-			text#Arduino
+	body
+		#main
+			#sidebar
+				h2 SideBar
+				#navcontainer
+					ul
+						li: a(href='/garage') Garage Home
+						li: a(href='/settings/garage') Garage Settings
+						li: a(href='/log/garage') Garage Log
+				text#connection
+				<br/>Current time is 
+				text#date
+				<br/>Arduino Connected: 
+				text#Arduino
+			#content
+				h2 #{title}
+				h4
+					font(color='black')
+					| Door is 
+					text#doorState
+					|  
+					</br>
+					// Button here
+					button#doorTrigger Trigger
+				div
+					h4
+						font(color='black')
+						| Last door activity was at 
+						text#lastActivityEventTime
+				#video
+					img(src= "http://pfeilsplace.com:8766?_username=admin&_signature=41098c11b2d997abbb4e1554ffd50c8c4509e2b8")
+					img(src= "http://pfeilsplace.com:8084?_username=admin&_signature=41098c11b2d997abbb4e1554ffd50c8c4509e2b8")
+					
+				script(src='/socket.io/socket.io.js')
+				script(src='http://code.jquery.com/jquery-latest.min.js ')
+				script.
+					var socket = io();
+					var allPage;
+					console.log(document.URL);
+					if (document.URL == 'http://pfeilsplace.com/garage'){
+						socket = io.connect('http://pfeilsplace.com/garage');
+						allPage = io.connect('http://pfeilsplace.com');
+					}
+					else if (document.URL == 'http://localhost:3001/garage'){
+						socket = io.connect('http://localhost:3001/garage');
+						allPage = io.connect('http://localhost:3001');
+					}
+					allPage.on('date', function(data){
+						$('#date').text(data.date);
+					});
+					allPage.on('Arduino', function(data){
+						$('#Arduino').text(data.Arduino);
+					});
+					socket.on('doorState', function(data){
+						console.log(data);
+						$('#doorState').text(data.doorState);
+						var doorStatus = $('#doorState').text();
+						if (doorStatus == 'Open')
+							$('#doorTrigger').text('Close');
+						else if (doorStatus == 'Closed')
+							$('#doorTrigger').text('Open');
+						else if (doorStatus == 'Moving')
+							$('#doorTrigger').text('Trigger');
+						else if (doorStatus == 'Unknown')
+							$('#doorTrigger').text('Trigger');
+						});
+					socket.on('lastActivityEventTime', function(data){
+						$('#lastActivityEventTime').text(data.lastActivityEventTime);
+					});
+					$(document).ready(function(){
+						socket.on('connect', function() {
+							$('#connection').text('Server: Connected');
+						});
+						socket.on('disconnect', function() {
+							$('#connection').text('Server: Disconnected');
+						});
+						$('#doorTrigger').click(function() {
+							socket.emit('trigger', {trigger: $('#doorTrigger').text()});
+							console.log($('#doorTrigger').text());
+						});
+					});
+					var logoHeight = $('#myDiv img').height();
+						if (logoHeight < 104) {
+							var margintop = (104 - logoHeight) / 2;
+							$('#myDiv img').css('margin-top', margintop);
+						}

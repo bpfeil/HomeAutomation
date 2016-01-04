@@ -10,12 +10,14 @@ var doorStateWatch = oplog.filter("homeAutomation.doorstates");
 var settingsWatch = oplog.filter("homeAutomation.garagesettings");
 var doorBell = oplog.filter("homeAutomation.doorbells");
 
-var doorState;
+var doorState = "Unknown";
+var doorActivityTime = "Unknown";
 
 doorStateWatch.on('insert', function(doorStuff){
     //console.log(doorStuff);
     //console.log("state "  + doorStuff.o.state);
     doorState = doorStuff.o.state;
+    doorActivityTime = doorStuff.o.timeStamp;
 });
 
 settingsWatch.on('update', function(){
@@ -24,8 +26,18 @@ settingsWatch.on('update', function(){
 	doorMonitor.getSettings();
 });
 
-exports.exposedDoorState = function(callback){
+var exposedDoorState = function(callback){
 	callback(doorState);
+};
+
+var exposedDoorActivityTime = function(callback){
+	callback(doorActivityTime);
+};
+
+
+module.exports = {
+		exposedDoorState: exposedDoorState,
+		exposedDoorActivityTime: exposedDoorActivityTime,
 };
 
 /*

@@ -1,5 +1,163 @@
 extends ../layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	body
+		#main
+			#sidebar
+				h2 SideBar
+				#navcontainer
+					ul
+						li: a(href='/garage') Garage Home
+						li: a(href='/settings/garage') Garage Settings
+						li: a(href='/log/garage') Garage Log
+				text#connection
+				<br/>Current time is 
+				text#date
+				<br/>Arduino Connected: 
+				text#Arduino
+			#content
+				#content
+					h2 #{title}
+					div.Alerts
+						h3 Alert Settings
+						h4
+							input(type="checkbox", name="alerts", id="alerts")
+							| Alerts 
+							text#enabled
+							</br>
+							|Run Every 
+							input(type="number", name="notify_time", id="notify_time", maxlength="6", size="6")
+							&nbsp;
+							|Send alert every X minutes </br>
+							|Notify for: 
+							input(type="checkbox", name="triggerAlerts", id="triggerAlerts")
+							| Trigger Alerts
+							input(type="checkbox", name="doorStateAlerts", id="doorStateAlerts")
+							| Door State Alerts
+					div.ArduinoSettings
+						h3 Arduino Settings
+						h4
+							|Arduino IP 
+							input(type="text", name="arduinoIP", id="arduinoIP", maxlength="15", size="16")
+							</br>
+							|Arduino Port 
+							input(type="number", name="arduinoPort", id="arduinoPort", maxlength="6", size="6")
+							</br>
+							|AccessKey: 
+							text#arduinoAccessKey
+							
+							
+					
+					script(src='/socket.io/socket.io.js')
+					script(src='http://code.jquery.com/jquery-latest.min.js ')
+					script.
+						var socket = io();
+						var allPage;
+						console.log(document.URL);
+						if (document.URL == 'http://pfeilsplace.com/settings/garage'){
+							socket = io.connect('http://pfeilsplace.com/settings/garage');
+							allPage = io.connect('http://pfeilsplace.com');
+						}
+						else if (document.URL == 'http://localhost:3001/settings/garage'){
+							socket = io.connect('http://localhost:3001/settings/garage');
+							allPage = io.connect('http://localhost:3001');
+						}
+						
+						//RECEIVE DATA
+						allPage.on('date', function(data){
+							$('#date').text(data.date);
+						});
+						socket.on('Alerts', function(data){
+							if (data.Alerts == true){
+								$('#alerts').prop('checked', true);
+								$('#enabled').text('Active');
+							}
+							else if (data.Alerts == false){
+								$('#alerts').prop('checked', false);
+								$('#enabled').text('Inactive');
+							}
+						});
+						socket.on('notify_time', function(data){
+							$('#notify_time').val(data.notify_time);
+						});
+						socket.on('triggerAlerts', function(data){
+							if (data.triggerAlerts == true){
+								$('#triggerAlerts').prop('checked', true);
+							}
+							else if (data.triggerAlerts == false){
+								$('#triggerAlerts').prop('checked', false);
+							}
+						});
+						socket.on('doorStateAlerts', function(data){
+							if (data.doorStateAlerts == true){
+								$('#doorStateAlerts').prop('checked', true);
+							}
+							else if (data.doorStateAlerts == false){
+								$('#doorStateAlerts').prop('checked', false);
+							}
+						});
+						socket.on('arduinoIP', function(data){
+							$('#arduinoIP').val(data.arduinoIP);
+						});
+						socket.on('arduinoPort', function(data){
+							$('#arduinoPort').val(data.arduinoPort);
+						});
+						socket.on('arduinoAccessKey', function(data){
+							$('#arduinoAccessKey').text(data.arduinoAccessKey);
+						});
+						
+						//SEND DATA
+						$(document).ready(function(){
+							$('#alerts').change(function() {
+								if(this.checked) {
+									console.log("event");
+									socket.emit('alerts', {alerts: 'On'});
+								}
+								else{
+									console.log("Another event");
+									socket.emit('alerts', {alerts: 'Off'});
+								}
+							});
+							//$('#notify_time').on('input',function(){
+								//socket.emit('notify_time', {notify_time:$('#notify_time').val()});
+							//});
+							$("#notify_time").focus(function() {
+								//console.log('in the text box');
+							}).blur(function() {
+								socket.emit('notify_time', {notify_time:$('#notify_time').val()});
+							});
+							$('#triggerAlerts').change(function() {
+								if(this.checked) {
+									socket.emit('triggerAlerts', {triggerAlerts: 'On'});
+								}
+								else{
+									socket.emit('triggerAlerts', {triggerAlerts: 'Off'});
+								}
+							});
+							$('#doorStateAlerts').change(function() {
+								if(this.checked) {
+									socket.emit('doorStateAlerts', {doorStateAlerts: 'On'});
+								}
+								else{
+									socket.emit('doorStateAlerts', {doorStateAlerts: 'Off'});
+								}
+							});
+							$('#arduinoIP').on('input',function(){
+								//socket.emit('arduinoIP', {arduinoIP:$('#arduinoIP').val()});
+							}).blur(function() {
+								socket.emit('arduinoIP', {arduinoIP:$('#arduinoIP').val()});
+							});
+							$('#arduinoPort').on('input',function(){
+								//socket.emit('arduinoPort', {arduinoPort:$('#arduinoPort').val()});
+							}).blur(function() {
+								socket.emit('arduinoPort', {arduinoPort:$('#arduinoPort').val()});
+							});
+						
+				
+							socket.on('connect', function() {
+								$('#connection').text('Server: Connected');
+							});
+							socket.on('disconnect', function() {
+								$('#connection').text('Server: Disconnected');
+							});
+						});

@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+	h1= title
+	p #{title}
+	a(href='/settings/garage') Garage Settings
+	
+	script(src='/socket.io/socket.io.js')
+	script(src='http://code.jquery.com/jquery-latest.min.js ')
+	script.
+		var socket = io();
+		var allPage, socket;
+		console.log(document.URL);
+		if (document.URL == 'http://pfeilsplace.com/settings'){
+			socket = io.connect('http://pfeilsplace.com/settings');
+			allPage = io.connect('http://pfeilsplace.com');
+		}
+		else if (document.URL == 'http://localhost:3001/settings'){
+			socket = io.connect('http://localhost:3001/settings');
+			allPage = io.connect('http://localhost:3001');
+		}
+		allPage.on('date', function(data){
+			$('#date').text(data.date);
+		});
+		$(document).ready(function(){
+			socket.on('connect', function() {
+				$('#connection').text('Server: Connected');
+			});
+			socket.on('disconnect', function() {
+				$('#connection').text('Server: Disconnected');
+			});
+			$('#doorTrigger').click(function() {
+				socket.emit('trigger', {trigger: $('#doorTrigger').text()});
+				console.log($('#doorTrigger').text());
+			});
+		});
+
+block foot
+	div(align='right')
+		h4
+			text#connection
+			<br/>Current time is 
+			text#date

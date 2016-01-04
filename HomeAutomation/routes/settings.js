@@ -20,7 +20,7 @@ router.use(methodOverride(function(req, res){
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('settings/index', {
+  res.render('settings/settingsIndex', {
 	  title: "Pfeil's Place Automation Settings"
 	});
 });
