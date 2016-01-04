@@ -4,16 +4,19 @@ html
 		title= title
 		link(rel='stylesheet', href='/stylesheets/style.css', type='text/css')
 	body
-		div.content
+		#wrap
 			#header
 				h1 Pfeil's Place
 				#menucontainer
 					#menunav
 						ul
-							li: a(href='/') Home
-							li: a(href='/garage') Garage
-							li: a(href='/settings') Settings
-		block content
+							li: a(href='/')
+								span Home
+							li: a(href='/garage')
+								span Garage
+							li: a(href='/settings')
+								span Settings
+			block content
 		#footer
 			a(href='/') Home
 			&nbsp; | 
