@@ -41,7 +41,8 @@ router.route('/')
 router.route('/door')
     .get(function(req, res, next) {
         //retrieve last entry from Monogo
-        mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
+    	mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, doorState) {
+        //mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
               if (err) {
                   return logger.error(err);
               } else {
@@ -65,6 +66,7 @@ router.route('/door')
     	doorMonitor.doorAlert(state);
     	worker.exposedDoorState(function(dbState){
     		if (dbState != state){
+    			console.log("Updating DB");
     			mongoose.model('DoorState').create({
     	            state : state,
     	            timeStamp : time.getDateTime1(new Date())
@@ -107,6 +109,8 @@ router.get('/door/trigger/:id', function(req, res) {
 router.get('/home', function(req, res){
 	var whoHome = [];
 	mongoose.model('Home').find({},{}, { sort: { _id : -1}}, function(err,who){
+		//db.collection.find().limit(1).sort({$natural:-1})
+
 		if (err) {
 	          logger.error(err);
 	     } else {

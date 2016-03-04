@@ -25,20 +25,33 @@ var getSettings = function(){
 getSettings();
 
 //get last doorState change from DB
-mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, lastState) {
+mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, lastState) {
 	if (err) {
 		logger.error(err);
 	} else {
-		console.log(lastState);
-		currentDoorState = lastState.state;
-		mongoose.model('DoorState').findOne({"state": {$ne: currentDoorState}},{}, { sort: { _id : -1}}, function(err,lastChange){
-			if (err) {
-				logger.error(err);
-			}else{
-				lastDoorStateChange = lastChange.timeStamp;
-				console.log(lastDoorStateChange);
-			}
-		});
+		if (lastState){
+			console.log(lastState);
+			currentDoorState = lastState.state;
+			mongoose.model('DoorState').findOne({"state": {$ne: currentDoorState}},{}, { sort: { _id : -1}}, function(err,lastChange){
+				if (err) {
+					logger.error(err);
+				}
+				else{
+					if (lastChange){
+						console.log(lastChange);
+						lastDoorStateChange = lastChange.timeStamp;
+						console.log(lastDoorStateChange);
+					}
+					else{
+						lastDoorStateChange = lastState.timeStamp;
+					}
+				}
+			});
+		}
+		else{
+			logger.debug("No state found");
+			lastDoorStateChange = "1-1-1900";
+		}
 	}
 });
 
@@ -46,7 +59,6 @@ module.exports = {
 	doorAlert: function doorStateAlert(doorState){
 		var action, desc;
 		now = new Date();
-		//Need to clean this up, get multiple alerts for when the door starts motion (initial change, moving, last change)yr
 		if (doorState != currentDoorState){
 			if (currentDoorState == "Closed"){
 				action = "Opening";

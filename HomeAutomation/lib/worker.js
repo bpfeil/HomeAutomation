@@ -78,12 +78,18 @@ module.exports = {
 	exposedDoorState: function(callback){
 		watcher.exposedDoorState(function(state){
 			if (state == "Unknown"){
-				mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
+				mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, doorState) {
 			         if (err) {
 			             logger.error(err);
 			             return callback(state);
 			         } else {
-			        	 return callback(doorState.state);
+			        	 if (doorState){
+			        		 return callback(doorState.state);
+			        	 }
+			        	 else{
+			        		 logger.debug("Nothing found to return");
+			        		 return callback("none");
+			        	 }
 			         }
 				});
 			}
@@ -101,7 +107,13 @@ module.exports = {
 			             logger.error(err);
 			             return callback(time);
 			         } else {
-			        	 return callback(doorState.timeStamp.toLocaleString());
+			        	 if(doorState){
+			        		 return callback(doorState.timeStamp.toLocaleString());
+			        	 }
+			        	 else{
+			        		 logger.debug("nothing found to return");
+			        		 return callback('1-1-1900');
+			        	 }
 			         }
 				});
 			}

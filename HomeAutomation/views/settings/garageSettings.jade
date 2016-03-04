@@ -16,37 +16,35 @@ block content
 				<br/>Arduino Connected: 
 				text#Arduino
 			#content
-				#content
-					h2 #{title}
-					div.Alerts
-						h3 Alert Settings
-						h4
-							input(type="checkbox", name="alerts", id="alerts")
-							| Alerts 
-							text#enabled
-							</br>
-							|Run Every 
-							input(type="number", name="notify_time", id="notify_time", maxlength="6", size="6")
-							&nbsp;
-							|Send alert every X minutes </br>
-							|Notify for: 
-							input(type="checkbox", name="triggerAlerts", id="triggerAlerts")
-							| Trigger Alerts
-							input(type="checkbox", name="doorStateAlerts", id="doorStateAlerts")
-							| Door State Alerts
-					div.ArduinoSettings
-						h3 Arduino Settings
-						h4
-							|Arduino IP 
-							input(type="text", name="arduinoIP", id="arduinoIP", maxlength="15", size="16")
-							</br>
-							|Arduino Port 
-							input(type="number", name="arduinoPort", id="arduinoPort", maxlength="6", size="6")
-							</br>
-							|AccessKey: 
-							text#arduinoAccessKey
-							
-							
+				h2 #{title}
+				div.Alerts
+					h3 Alert Settings
+					h4
+						input(type="checkbox", name="alerts", id="alerts")
+						| Alerts 
+						text#enabled
+						</br>
+						|Run Every 
+						input(type="number", name="notify_time", id="notify_time", maxlength="6", size="6")
+						&nbsp;
+						|Send alert every X minutes </br>
+						|Notify for: 
+						input(type="checkbox", name="triggerAlerts", id="triggerAlerts")
+						| Trigger Alerts
+						input(type="checkbox", name="doorStateAlerts", id="doorStateAlerts")
+						| Door State Alerts
+				div.ArduinoSettings
+					h3 Arduino Settings
+					h4
+						|Arduino IP 
+						input(type="text", name="arduinoIP", id="arduinoIP", maxlength="15", size="16")
+						</br>
+						|Arduino Port 
+						input(type="number", name="arduinoPort", id="arduinoPort", maxlength="6", size="6")
+						</br>
+						|AccessKey: 
+						text#arduinoAccessKey
+	
 					
 					script(src='/socket.io/socket.io.js')
 					script(src='http://code.jquery.com/jquery-latest.min.js ')
