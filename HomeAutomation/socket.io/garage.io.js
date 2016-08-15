@@ -4,6 +4,9 @@ var logger = require('../lib/logger');
 var worker = require('../lib/worker');
 var mongoose = require('mongoose'); //mongo connection
 var trigger = require('../lib/doorTrigger'); //used to trigger the door
+var myQ = require('../lib/myQ');
+
+var arduino, myQ_Enabled;
 
 module.exports = function(io){
 	var garage = io.of('/garage');
@@ -20,14 +23,44 @@ module.exports = function(io){
 		});
 		
 		socket.on('trigger', function(data){
+			worker.openingMethod(function(err, methods){
+				if (err){
+					res.render(err);
+				}
+				else {
+					methods = JSON.parse(methods);
+					
+					if (methods.arduino === true){
+						arduino = true;
+					}
+					if (methods.myQ === true){
+						myQ_Enabled = true;
+					}
+				}
+			});
 			if (data.trigger == 'Open') {
-				trigger.sendTrigger(function(status) { });
-			}
+				if (arduino){
+					trigger.sendTrigger(function(status) { });
+				}
+				if (myQ_Enabled){
+					myQ.triggerDoor();
+				}
+			}			
 	        else if (data.trigger == 'Close') {
-	        	trigger.sendTrigger(function(status) { });
+	        	if (arduino){
+					trigger.sendTrigger(function(status) { });
+				}
+				if (myQ_Enabled){
+					myQ.triggerDoor();
+				}
 	        }
 	        else if (data.trigger == 'Trigger') {
-	        	trigger.sendTrigger(function(status) { });
+	        	if (arduino){
+					trigger.sendTrigger(function(status) { });
+				}
+				if (myQ_Enabled){
+					myQ.triggerDoor();
+				}
 	        }
 	     });
 	     

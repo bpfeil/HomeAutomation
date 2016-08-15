@@ -6,7 +6,9 @@ var garageSettingsSchema = new mongoose.Schema({
   alerts: Boolean,
   triggerAlerts: Boolean,
   doorStateAlerts: Boolean,
-  accessKey: String
+  accessKey: String,
+  arduinoEnabled: Boolean,
+  myQ: Boolean
 });
 
 mongoose.model('GarageSettings', garageSettingsSchema);

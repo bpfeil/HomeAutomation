@@ -36,6 +36,10 @@ block content
 				div.ArduinoSettings
 					h3 Arduino Settings
 					h4
+						input(type="checkbox", name="arduino", id="arduino")
+						| Arduino 
+						text#arduinoEnabled
+						</br>
 						|Arduino IP 
 						input(type="text", name="arduinoIP", id="arduinoIP", maxlength="15", size="16")
 						</br>
@@ -44,6 +48,13 @@ block content
 						</br>
 						|AccessKey: 
 						text#arduinoAccessKey
+				div.MyQ
+					h3 MyQ Settings
+					h4
+						input(type="checkbox", name="myQ", id="myQ")
+						| MyQ 
+						text#myQEnabled
+						</br>
 	
 					
 					script(src='/socket.io/socket.io.js')
@@ -71,11 +82,11 @@ block content
 						socket.on('Alerts', function(data){
 							if (data.Alerts == true){
 								$('#alerts').prop('checked', true);
-								$('#enabled').text('Active');
+								$('#enabled').text('Enabled');
 							}
 							else if (data.Alerts == false){
 								$('#alerts').prop('checked', false);
-								$('#enabled').text('Inactive');
+								$('#enabled').text('Disabled');
 							}
 						});
 						socket.on('notify_time', function(data){
@@ -97,6 +108,16 @@ block content
 								$('#doorStateAlerts').prop('checked', false);
 							}
 						});
+						socket.on('arduinoEnabled', function(data){
+							if (data.arduinoEnabled == true){
+								$('#arduino').prop('checked', true);
+								$('#arduinoEnabled').text('Enabled');
+							}
+							else if (data.arduinoEnabled == false){
+								$('#arduino').prop('checked', false);
+								$('#arduinoEnabled').text('Disabled');
+							}
+						});
 						socket.on('arduinoIP', function(data){
 							$('#arduinoIP').val(data.arduinoIP);
 						});
@@ -106,6 +127,16 @@ block content
 						socket.on('arduinoAccessKey', function(data){
 							$('#arduinoAccessKey').text(data.arduinoAccessKey);
 						});
+						socket.on('myQ', function(data){
+							if (data.myQ == true){
+								$('#myQ').prop('checked', true);
+								$('#myQEnabled').text('Enabled');
+							}
+							else if (data.myQ == false){
+								$('#myQ').prop('checked', false);
+								$('#myQEnabled').text('Disabled');
+							}
+						});
 						
 						//SEND DATA
 						$(document).ready(function(){
@@ -113,15 +144,14 @@ block content
 								if(this.checked) {
 									console.log("event");
 									socket.emit('alerts', {alerts: 'On'});
+									$('#enabled').text('Enabled');
 								}
 								else{
 									console.log("Another event");
 									socket.emit('alerts', {alerts: 'Off'});
+									$('#enabled').text('Disabled');
 								}
 							});
-							//$('#notify_time').on('input',function(){
-								//socket.emit('notify_time', {notify_time:$('#notify_time').val()});
-							//});
 							$("#notify_time").focus(function() {
 								//console.log('in the text box');
 							}).blur(function() {
@@ -143,6 +173,18 @@ block content
 									socket.emit('doorStateAlerts', {doorStateAlerts: 'Off'});
 								}
 							});
+							$('#arduino').change(function() {
+								if(this.checked) {
+									console.log("Arduino enabled");
+									socket.emit('arduino', {arduino: 'On'});
+									$('#arduinoEnabled').text('Enabled');
+								}
+								else{
+									console.log("Arduino disabled");
+									socket.emit('arduino', {arduino: 'Off'});
+									$('#arduinoEnabled').text('Disabled');
+								}
+							});
 							$('#arduinoIP').on('input',function(){
 								//socket.emit('arduinoIP', {arduinoIP:$('#arduinoIP').val()});
 							}).blur(function() {
@@ -153,7 +195,19 @@ block content
 							}).blur(function() {
 								socket.emit('arduinoPort', {arduinoPort:$('#arduinoPort').val()});
 							});
-						
+							
+							$('#myQ').change(function() {
+								if(this.checked) {
+									console.log("myQ enabled");
+									socket.emit('myQ', {myQ: 'On'});
+									$('#myQEnabled').text('Enabled');
+								}
+								else{
+									console.log("myQ disabled");
+									socket.emit('myQ', {myQ: 'Off'});
+									$('#myQEnabled').text('Disabled');
+								}
+							});
 				
 							socket.on('connect', function() {
 								$('#connection').text('Server: Connected');

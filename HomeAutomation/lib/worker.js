@@ -7,13 +7,29 @@ var watcher = require('../lib/oplog_Watcher');
 var lastCommunication = new Date();
 var lastAlert = new Date();
 var arduinoConnected = "Unknown";
+var arduino = "Unknown";
+
+mongoose.model('GarageSettings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
+    if (err) {
+    	logger.error("Unable to get settings from DB");
+    } else {
+    	arduino = settings.arduinoEnabled;
+    	if (arduino === false){
+    		arduinoConnected = "Disabled";
+    	}
+    }
+});
 
 setInterval(function(){//After 300 seconds
-	if ((new Date() - lastCommunication) > 300000){
-		if ((new Date() - lastAlert) > 300000){
-			arduinoConnected = false;
-			pushbullet.pushNote("Arduino Lost", "Connection", "Arduino lost at " + lastCommunication);
-			lastAlert = new Date();
+	if (arduino){
+		if ((new Date() - lastCommunication) > 300000){
+			if ((new Date() - lastAlert) > 300000){
+				console.log(arduino);
+				console.log("Arduino Enabled = " + arduino);
+				arduinoConnected = false;
+				pushbullet.pushNote("Arduino Lost", "Connection", "Arduino lost at " + lastCommunication);
+				lastAlert = new Date();
+			}
 		}
 	}
 }, 5000);
@@ -66,6 +82,10 @@ module.exports = {
 	        	  logger.error("There was an error updating the GarageSettings DB");
 	        	  logger.error(err);
 	          } else {
+	        	  if (key == "arduinoEnabled"){
+	        		  arduino = value;
+	        		  lastAlert = new Date();
+	        	  }
 	        	  return callback("Updated DB for " + key + " with a value of " + value);
 	          }
 			});
@@ -73,6 +93,18 @@ module.exports = {
 	
 	exposedArduinoState: function(callback){
 		callback(arduinoConnected);
+	},
+	
+	openingMethod: function(callback){
+		mongoose.model('GarageSettings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
+		    if (err) {
+		    	logger.error("Unable to get settings from DB");
+		    	callback("We have an issue getting to the database");
+		    } else {
+		    	//values.push({arduino: settings.arduinoEnabled, myQ: settings.myQ});
+		    	callback(null, JSON.stringify({arduino: settings.arduinoEnabled, myQ: settings.myQ}));
+		    }
+		});
 	},
 	
 	exposedDoorState: function(callback){

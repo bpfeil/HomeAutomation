@@ -23,12 +23,15 @@ module.exports = function(io){
 		    	logger.error("Unable to get settings from DB");
 		    } else {
 		    	socket.emit('Alerts', {'Alerts': settings.alerts});
+		    	socket.emit('Arduino', {'Arduino' : settings.arduino});
 		    	socket.emit('notify_time', {'notify_time': settings.notifyTime});
 		    	socket.emit('triggerAlerts', {'triggerAlerts': settings.triggerAlerts});
 		    	socket.emit('doorStateAlerts', {'doorStateAlerts': settings.doorStateAlerts});
 		    	socket.emit('arduinoIP', {'arduinoIP': settings.arduino});
 		    	socket.emit('arduinoPort', {'arduinoPort': settings.arduinoPort});
 		    	socket.emit('arduinoAccessKey', {'arduinoAccessKey': settings.accessKey});
+		    	socket.emit('myQ', {'myQ': settings.myQ});
+		    	socket.emit('arduinoEnabled', {'arduinoEnabled': settings.arduinoEnabled});
 		    }
 		});
 		
@@ -77,6 +80,17 @@ module.exports = function(io){
 	        	logger.info(data); 
 	         });
 	   });
+	   socket.on('arduino', function(data) {
+	        if (data.arduino == 'On') {
+	             arduino = true;
+	        }
+	        else if (data.arduino == 'Off') {
+	             arduino = false;
+	        }
+	        worker.updateGarageSettings('arduinoEnabled', arduino, function(data){
+	        	logger.info(data); 
+	         });
+	   });
 	   socket.on('arduinoIP', function(data) {
 		   worker.updateGarageSettings('arduino', data.arduinoIP, function(data){
 			   logger.info(data);
@@ -86,6 +100,17 @@ module.exports = function(io){
 		   worker.updateGarageSettings('arduinoPort', data.arduinoPort, function(data){
 			   logger.info(data);
 		   });
+	   });
+	   socket.on('myQ', function(data) {
+	        if (data.myQ == 'On') {
+	             myQ = true;
+	        }
+	        else if (data.myQ == 'Off') {
+	             myQ = false;
+	        }
+	        worker.updateGarageSettings('myQ', myQ, function(data){
+	        	logger.info(data); 
+	         });
 	   });
 	});
 };

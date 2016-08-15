@@ -10,6 +10,7 @@ var doorMonitor = require('../lib/doorMonitor');
 var pushBullet = require('../lib/pushBullet');
 var worker = require('../lib/worker');
 var updateNest = require('../lib/updateNest');
+var myQ = require('../lib/myQ');
 
 
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -97,13 +98,39 @@ router.route('/door')
     });
 
 router.get('/door/trigger/:id', function(req, res) {
-	trigger.sendTrigger(function(status) {
-		logger.debug("Response " + status);
-		res.render('api/doorTrigger', { 
-	    	title: 'Trigger',
-	    	"triggerStatus": status});
+	worker.openingMethod(function(err, methods){
+		if (err){
+			res.render(err);
+		}
+		else {
+			methods = JSON.parse(methods);
+			
+			if (methods.arduino === true){
+				trigger.sendTrigger(function(status) {
+					logger.debug("Response " + status);
+					res.render('api/doorTrigger', { 
+				    	title: 'Trigger',
+				    	"triggerStatus": status});
+				});
+			}
+			if (methods.myQ === true){
+				//Call myQ
+				myQ.triggerDoor(function(err,success){
+					if (err){
+						logger.error(err);
+					}else {
+						res.render('api/doorTrigger', { 
+					    	title: 'Trigger',
+					    	"triggerStatus": success});
+					}
+				});
+			}
+			else {
+				res.json({"Status": "Nothing enabled to open doors"});
+				pushBullet.pushNote("Door Not Triggered", "No devices enabled for garage doors.");
+			}
+		}
 	});
-    
 });
 
 router.get('/home', function(req, res){
