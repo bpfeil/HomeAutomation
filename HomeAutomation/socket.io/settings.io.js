@@ -5,9 +5,10 @@ var watcher = require('../lib/oplog_Watcher');
 var worker = require('../lib/worker');
 var mongoose = require('mongoose'); //mongo connection
 
+var nest, ecobee;
+
 module.exports = function(io){
 	var settings = io.of('/settings');
-	var garageSettings = io.of('/settings/garage');
 	
 	settings.on('connection', function(socket){
 		logger.info('A user connected to /settings');
@@ -16,101 +17,40 @@ module.exports = function(io){
 		});
 	});
 	
-	garageSettings.on('connection', function(socket){
-		logger.info('A user connected to /settings/garage');
-		mongoose.model('GarageSettings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
+	settings.on('connection', function(socket){
+		logger.info('A user connected to /settings');
+		mongoose.model('Settings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
 		    if (err) {
 		    	logger.error("Unable to get settings from DB");
 		    } else {
-		    	socket.emit('Alerts', {'Alerts': settings.alerts});
-		    	socket.emit('Arduino', {'Arduino' : settings.arduino});
-		    	socket.emit('notify_time', {'notify_time': settings.notifyTime});
-		    	socket.emit('triggerAlerts', {'triggerAlerts': settings.triggerAlerts});
-		    	socket.emit('doorStateAlerts', {'doorStateAlerts': settings.doorStateAlerts});
-		    	socket.emit('arduinoIP', {'arduinoIP': settings.arduino});
-		    	socket.emit('arduinoPort', {'arduinoPort': settings.arduinoPort});
-		    	socket.emit('arduinoAccessKey', {'arduinoAccessKey': settings.accessKey});
-		    	socket.emit('myQ', {'myQ': settings.myQ});
-		    	socket.emit('arduinoEnabled', {'arduinoEnabled': settings.arduinoEnabled});
+		    	console.log(settings);
+		    	socket.emit('Nest', {'Nest': settings.nest});
+		    	socket.emit('Ecobee', {'Ecobee' : settings.ecobee});
 		    }
 		});
 		
-		socket.on('alerts', function(data) {
-	        if (data.alerts == 'On') {
-	             alerts = true;
+		socket.on('nest', function(data) {
+	        if (data.nest == 'On') {
+	             nest = true;
 	        }
-	        else if (data.alerts == 'Off') {
-	             alerts = false;
+	        else if (data.nest == 'Off') {
+	             nest = false;
 	        }
-	        worker.updateGarageSettings('alerts', alerts, function(data){
+	        worker.updateSettings('nest', nest, function(data){
 	        	logger.info(data); 
 	         });
+		});
+	    socket.on('ecobee', function(data) {
+	    	if (data.ecobee == 'On') {
+	    		ecobee = true;
+	    	}
+	    	else if (data.ecobee == 'Off') {
+	    		ecobee = false;
+	    	}
+	    	worker.updateSettings('ecobee', ecobee, function(data){
+	    		logger.info(data);
+	    	});
 	   });
-	   socket.on('notify_time', function(data){
-		   console.log(data.notify_time);
-	        if (data.notify_time === ""){
-	             notifyTime = 0;
-	        }
-	        else{
-	             notifyTime = data.notify_time;
-	        }
-	        worker.updateGarageSettings('notifyTime', notifyTime, function(data){
-	        	logger.info(data); 
-	         });
-	   });
-	   socket.on('triggerAlerts', function(data) {
-	        if (data.triggerAlerts == 'On') {
-	             triggerAlerts = true;
-	        }
-	        else if (data.triggerAlerts == 'Off') {
-	             triggerAlerts = false;
-	        }
-	        worker.updateGarageSettings('triggerAlerts', triggerAlerts, function(data){
-	        	logger.info(data); 
-	         });
-	   });
-	   socket.on('doorStateAlerts', function(data) {
-	        if (data.doorStateAlerts == 'On') {
-	             doorStateAlerts = true;
-	        }
-	        else if (data.doorStateAlerts == 'Off') {
-	             doorStateAlerts = false;
-	        }
-	        worker.updateGarageSettings('doorStateAlerts', doorStateAlerts, function(data){
-	        	logger.info(data); 
-	         });
-	   });
-	   socket.on('arduino', function(data) {
-	        if (data.arduino == 'On') {
-	             arduino = true;
-	        }
-	        else if (data.arduino == 'Off') {
-	             arduino = false;
-	        }
-	        worker.updateGarageSettings('arduinoEnabled', arduino, function(data){
-	        	logger.info(data); 
-	         });
-	   });
-	   socket.on('arduinoIP', function(data) {
-		   worker.updateGarageSettings('arduino', data.arduinoIP, function(data){
-			   logger.info(data);
-		   });
-	   });
-	   socket.on('arduinoPort', function(data) {
-		   worker.updateGarageSettings('arduinoPort', data.arduinoPort, function(data){
-			   logger.info(data);
-		   });
-	   });
-	   socket.on('myQ', function(data) {
-	        if (data.myQ == 'On') {
-	             myQ = true;
-	        }
-	        else if (data.myQ == 'Off') {
-	             myQ = false;
-	        }
-	        worker.updateGarageSettings('myQ', myQ, function(data){
-	        	logger.info(data); 
-	         });
-	   });
+	  
 	});
 };

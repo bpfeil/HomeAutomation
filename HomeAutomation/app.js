@@ -16,6 +16,7 @@ var doorBell = require('./model/doorBell');
 var home = require('./model/home');
 var nestAccess = require('./model/nestAccess');
 var myQ_Access = require('./model/myQ_Access');
+var settings = require('./model/settings');
 
 //Helper modules
 var logger = require('./lib/logger');

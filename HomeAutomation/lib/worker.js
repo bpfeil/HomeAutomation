@@ -3,6 +3,7 @@ var logger = require('../lib/logger');
 var pushbullet = require('./pushBullet');
 var updateNest = require('../lib/updateNest');
 var watcher = require('../lib/oplog_Watcher');
+var ecobee = require('./ecobee');
 
 var lastCommunication = new Date();
 var lastAlert = new Date();
@@ -34,6 +35,18 @@ setInterval(function(){//After 300 seconds
 	}
 }, 5000);
 
+var thermoMethod = function(callback){
+	mongoose.model('Settings').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, settings) {
+	    if (err) {
+	    	logger.error("Unable to get settings from DB");
+	    	callback("We have an issue getting to the database");
+	    } else {
+	    	//values.push({arduino: settings.arduinoEnabled, myQ: settings.myQ});
+	    	callback(null, JSON.stringify({nest: settings.nest, ecobee: settings.ecobee}));
+	    }
+	});
+};
+
 module.exports = {
 	arduinoWatcher: function(hostname){
 		logger.debug(hostname);
@@ -48,26 +61,48 @@ module.exports = {
 	},
 	
 	home: function(status, callback){
-		mongoose.model('Home').count({}, function(err,count){
-			if (err) {
-		          logger.error(err);
-		     } else {
-		    	 //Need to fix this section.  When no one is home or just one person is home the check in/out still happens
-		    	if(count === 0){
-		    		if(status == "checkout"){
-		    			 updateNest.setNestAwayStatus("away", function(response){
-		    				 logger.info(response);
-		    			 });
-		    		 }
-		    	}
-		    	if(count === 1){
-		    		if (status == "checkin"){
-		    	    	updateNest.setNestAwayStatus("home",function(response){
-		    	    		logger.info(response);
-		    	    	});
-		    	    }
-		    	 }
-		     }
+		thermoMethod(function(err, values){
+			if (err){
+				logger.err(err);
+			}
+			else {
+				values = JSON.parse(values);
+				ecobee = values.ecobee;
+				nest = values.nest;
+				mongoose.model('Home').count({}, function(err,count){
+					if (err) {
+				          logger.error(err);
+				     } else {
+				    	 //Need to fix this section.  When no one is home or just one person is home the check in/out still happens
+				    	if(count === 0){
+				    		if(status == "checkout"){
+				    			if (nest){
+				    				updateNest.setNestAwayStatus("away", function(response){
+					    				 logger.info(response);
+					    			 });
+				    			}
+				    			if (ecobee){
+				    				console.log("Ecobee checkout function TBD");
+				    			}
+				    		 }
+				    	}
+				    	if(count === 1){
+				    		if (status == "checkin"){
+				    			console.log(nest);
+				    			console.log(ecobee);
+				    			if (nest){
+				    				updateNest.setNestAwayStatus("home",function(response){
+					    	    		logger.info(response);
+					    	    	});
+				    			}
+				    			if (ecobee){
+				    				console.log("Ecobee checkin function TBD");
+				    			}
+				    	    }
+				    	 }
+				     }
+				});
+			}
 		});
 	},
 	
@@ -86,6 +121,22 @@ module.exports = {
 	        		  arduino = value;
 	        		  lastAlert = new Date();
 	        	  }
+	        	  return callback("Updated DB for " + key + " with a value of " + value);
+	          }
+			});
+	},
+	
+	updateSettings: function(key, value, callback){
+		var data = {};
+		data[key] = value;
+		mongoose.model('Settings').findOneAndUpdate(
+			{},
+			data,
+	    function (err, success) {
+	          if (err) {
+	        	  logger.error("There was an error updating the Settings DB");
+	        	  logger.error(err);
+	          } else {
 	        	  return callback("Updated DB for " + key + " with a value of " + value);
 	          }
 			});
@@ -154,4 +205,6 @@ module.exports = {
 			}
 		});
 	},
+	
+	thermoMethod: thermoMethod
 };

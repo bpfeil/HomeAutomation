@@ -9,7 +9,7 @@ setDaysTimeout(function() {
 	logger.info("Updating PB Devices");
 	pushBullet.updateDevices();
 	worker.openingMethod(function(err, methods){
-		methods = json.parse(methods);
+		methods = JSON.parse(methods);
 		if (methods.myQ === true){
 			logger.info("Updating MyQ Devices");
 			myQ.updateMyQDevices();
