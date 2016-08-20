@@ -1,0 +1,28 @@
+extends ../layout
+
+block content
+	h1= title
+	p Welcome to #{title}
+	#container
+	script(src='/socket.io/socket.io.js')
+	script(src='http://code.jquery.com/jquery-latest.min.js ')
+	script.
+		var socket = io();
+		var allPage, socket;
+		console.log(document.URL);
+		if (document.URL == 'http://pfeilsplace.com/log'){
+			socket = io.connect('http://pfeilsplace.com/log');
+			allPage = io.connect('http://pfeilsplace.com');
+		}
+		socket = io.connect('http://localhost:3001/log');
+		allPage = io.connect('http://pfeilsplace.com');
+		allPage.on('date', function(data){
+			$('#date').text(data.date);
+		});
+		allPage.on('Arduino', function(data){
+			$('#Arduino').text(data.Arduino);
+		});
+		socket.on('logger', function(data) {
+			console.log(data.logger);
+			$('#container').prepend('<div>' + data.log + '</div>');
+		});

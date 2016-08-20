@@ -3,6 +3,19 @@ extends ../layout
 block content
 	h1= title
 	p #{title}
+	
+	div.Alerts
+		h3 Alert Settings
+		h4
+			input(type="checkbox", name="nest", id="nest")
+			| Nest 
+			text#nestEnabled
+			</br>
+			input(type="checkbox", name="ecobee", id="ecobee")
+			| Ecobee 
+			text#ecobeeEnabled
+			</br>
+	
 	a(href='/settings/garage') Garage Settings
 	
 	script(src='/socket.io/socket.io.js')
@@ -22,19 +35,61 @@ block content
 		allPage.on('date', function(data){
 			$('#date').text(data.date);
 		});
+		socket.on('connect', function() {
+			$('#connection').text('Server: Connected');
+		});
+		socket.on('disconnect', function() {
+			$('#connection').text('Server: Disconnected');
+		});
+		socket.on('Nest', function(data){
+			if (data.Nest == true){
+				$('#nest').prop('checked', true);
+				$('#nestEnabled').text('Enabled');
+			}
+			else if (data.Nest == false){
+				$('#nest').prop('checked', false);
+				$('#nestEnabled').text('Disabled');
+			}
+		});
+		socket.on('Ecobee', function(data){
+			if (data.Ecobee == true){
+				$('#ecobee').prop('checked', true);
+				$('#ecobeeEnabled').text('Enabled');
+			}
+			else if (data.Ecobee == false){
+				$('#ecobee').prop('checked', false);
+				$('#ecobeeEnabled').text('Disabled');
+			}
+		});
+			
+		//SEND DATA
 		$(document).ready(function(){
-			socket.on('connect', function() {
-				$('#connection').text('Server: Connected');
+			$('#nest').change(function() {
+				if(this.checked) {
+					console.log("event");
+					socket.emit('nest', {nest: 'On'});
+					$('#nestEnabled').text('Enabled');
+				}
+				else{
+					console.log("Another event");
+					socket.emit('nest', {nest: 'Off'});
+					$('#nestEnabled').text('Disabled');
+				}
 			});
-			socket.on('disconnect', function() {
-				$('#connection').text('Server: Disconnected');
-			});
-			$('#doorTrigger').click(function() {
-				socket.emit('trigger', {trigger: $('#doorTrigger').text()});
-				console.log($('#doorTrigger').text());
+			$('#ecobee').change(function() {
+				if(this.checked) {
+					console.log("event");
+					socket.emit('ecobee', {ecobee: 'On'});
+					$('#ecobeeEnabled').text('Enabled');
+				}
+				else{
+					console.log("Another event");
+					socket.emit('ecobee', {ecobee: 'Off'});
+					$('#ecobeeEnabled').text('Disabled');
+				}
 			});
 		});
-
+		
 block foot
 	div(align='right')
 		h4
