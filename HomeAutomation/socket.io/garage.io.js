@@ -15,8 +15,11 @@ module.exports = function(io){
 	
 	garage.on('connection', function(socket){
 		logger.info('A user connected to Garage');
-		worker.exposedDoorState(function(state){
+		worker.exposedDoorState("Main Garage Door", function(state){
 			socket.emit('doorState', {'doorState': state});
+		});
+		worker.exposedDoorState("3rd Stall", function(state){
+			socket.emit('doorState1', {'doorState': state});
 		});
 		worker.lastDoorActivity(function(time){
 			socket.emit('lastActivityEventTime', {lastActivityEventTime:time});
@@ -65,8 +68,11 @@ module.exports = function(io){
 	     });
 	     
 	     setInterval(function(){//send data every X seconds
-	    	worker.exposedDoorState(function(state){
+	    	worker.exposedDoorState("Main Garage Door", function(state){
 	    		 socket.emit('doorState', {'doorState': state});
+	    	});
+	    	worker.exposedDoorState("3rd Stall", function(state){
+	    		 socket.emit('doorState1', {'doorState': state});
 	    	});
 	    	 worker.lastDoorActivity(function(time){
 	 			socket.emit('lastActivityEventTime', {lastActivityEventTime:time});

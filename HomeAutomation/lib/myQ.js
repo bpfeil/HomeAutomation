@@ -220,7 +220,7 @@ var getState = function(device, callback){
 };
 
 var getDoorStatuses = function(callback){
-	status = [];
+	var status = [];
      getDevices(function(err, Devices){
           if (err) {
         	  logger.error("Error " + err);
@@ -241,10 +241,12 @@ var getDoorStatuses = function(callback){
                             				  }else {
                             					  //console.log(device);
                                     			  console.log(name + " is currently " + state);
-                                    			  status.push({name: state});
+                                    			  var obj = {};
+                                    			  obj[name] = state;
+                                    			  status.push(obj);
                                     			  //Get all devices and states and return json
                             				  }
-                            				  callback(JSON.stringify(status));
+                            				  
                                 		  });
                             		  }
                             	  });
@@ -252,6 +254,7 @@ var getDoorStatuses = function(callback){
                          }
                     });
                });
+               callback(null, status);
           }
      });
 };
@@ -283,7 +286,59 @@ var triggerDoor1 = function(){
      });
 };
 
+var postDoorState = function(name, state){
+	console.log("Pushing " + name + " is " + state + " to API");
+	var qs = require("querystring");
+	var http = require("http");
+
+	var options = {
+	  "method": "POST",
+	  //"hostname": "pfeilsplace.com",
+	  "hostname": "localhost",
+	  //"port": "80",
+	  "port": "3001",
+	  "path": "/api/door",
+	  "headers": {
+	    "cache-control": "no-cache",
+	    "host": "HomeAutomation - MyQ",
+	    "content-type": "application/x-www-form-urlencoded"
+	  }
+	};
+
+	var req = http.request(options, function (res) {
+	  var chunks = [];
+
+	  res.on("data", function (chunk) {
+	    chunks.push(chunk);
+	  });
+
+	  res.on("end", function () {
+	    var body = Buffer.concat(chunks);
+	    console.log(body.toString());
+	  });
+	});
+
+	req.write(qs.stringify({ door : name, doorState: state }));
+	req.end();
+};
+
 get_MyQ_Cred();
+
+setInterval(function(){
+	getDoorStatuses(function(err, results){
+		if (err){
+			logger.error(err);
+		}
+		else {
+			console.log(typeof(results));
+			results.forEach(function(item){
+				name = Object.keys(item)[0];
+				state = item[name];
+				postDoorState(name, state);
+			});
+		}
+	});
+},30000);
 
 
 module.exports = {

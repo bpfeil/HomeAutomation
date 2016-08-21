@@ -42,7 +42,8 @@ router.route('/')
 router.route('/door')
     .get(function(req, res, next) {
         //retrieve last entry from Monogo
-    	mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, doorState) {
+    	door = req.headers.door;
+    	mongoose.model('DoorState').findOne({door: "Main Garage Door"}, {}, { sort: { _id : -1 } }, function (err, doorState) {
         //mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
               if (err) {
                   return logger.error(err);
@@ -52,7 +53,7 @@ router.route('/door')
                   res.format({
                     //JSON response
                     json: function(){
-                        res.json({"doorStatus": doorState.state});
+                        res.json({"door" : doorState.door, "doorStatus": doorState.state});
                     }
                 });
               }     
@@ -63,12 +64,14 @@ router.route('/door')
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
     	worker.arduinoWatcher(req.headers.host);
     	var state = req.body.doorState;
+    	var door = req.body.door;
     	logger.debug('POST creating new doorState: ' + state);
     	doorMonitor.doorAlert(state);
-    	worker.exposedDoorState(function(dbState){
+    	worker.exposedDoorState(door, function(dbState){
     		if (dbState != state){
     			console.log("Updating DB");
     			mongoose.model('DoorState').create({
+    				door : door,
     	            state : state,
     	            timeStamp : time.getDateTime1(new Date())
     	        }, function (err, door) {
@@ -96,6 +99,28 @@ router.route('/door')
     		}
     	});
     });
+
+router.route('/doors')
+.get(function(req, res, next) {
+    //retrieve last entry from Monogo
+	mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, doorState) {
+    //mongoose.model('DoorState').findOne({}, {}, { sort: { 'created_at' : -1 } }, function (err, doorState) {
+          if (err) {
+              return logger.error(err);
+          } else {
+        	  //logger.debug(doorState);
+              //respond to both HTML and JSON. JSON responses require 'Accept: application/json;' in the Request Header
+        	  var obj = {};
+			  obj[doorState.door] = doorState.state;
+        	  res.format({
+                //JSON response
+                json: function(){
+                    res.json(obj);
+                }
+            });
+          }     
+    });
+});
 
 router.get('/door/trigger/:id', function(req, res) {
 	worker.openingMethod(function(err, methods){
@@ -210,15 +235,34 @@ router.get('/home/nestStatus', function(req, res){
 	});
 });
 
-router.get('/home/nestData', function(req, res){
-	updateNest.getHouseData(function(response){
-		//console.log(response);
-		res.format({
-			json: function(){
-				res.send(response);
+router.get('/home/thermostat_data', function(req, res){
+	worker.thermoMethod(function(err, results){
+		if (err){
+			logger.error(err);
+		}
+		else {
+			results = JSON.parse(results);
+			if (results.nest){
+				updateNest.getHouseData(function(response){
+					//console.log(response);
+					res.format({
+						json: function(){
+							res.send(response);
+						}
+					});
+				});
 			}
-		});
+			if (results.ecobee){
+				console.log("get ecobeee data TBD");
+				res.format({
+					json: function(){
+						res.send("TBD");
+					}
+				});
+			}
+		}
 	});
+	
 });
 
 

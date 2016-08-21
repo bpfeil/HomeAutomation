@@ -19,9 +19,12 @@ block content
 				h2 #{title}
 				h4
 					font(color='black')
-					| Door is 
+					| Main Garage Door is 
 					text#doorState
 					|  
+					</br>
+					| 3rd Stall Door is 
+					text#doorState1
 					</br>
 					// Button here
 					button#doorTrigger Trigger
@@ -66,6 +69,19 @@ block content
 							$('#doorTrigger').text('Trigger');
 						else if (doorStatus == 'Unknown')
 							$('#doorTrigger').text('Trigger');
+						});
+					socket.on('doorState1', function(data){
+						console.log(data);
+						$('#doorState1').text(data.doorState);
+						var doorStatus = $('#doorState').text();
+						if (doorStatus == 'Open')
+							$('#doorTrigger1').text('Close');
+						else if (doorStatus == 'Closed')
+							$('#doorTrigger1').text('Open');
+						else if (doorStatus == 'Moving')
+							$('#doorTrigger1').text('Trigger');
+						else if (doorStatus == 'Unknown')
+							$('#doorTrigger1').text('Trigger');
 						});
 					socket.on('lastActivityEventTime', function(data){
 						$('#lastActivityEventTime').text(data.lastActivityEventTime);

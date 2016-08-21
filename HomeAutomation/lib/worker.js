@@ -54,7 +54,9 @@ module.exports = {
 			lastCommunication = new Date();
 			arduinoConnected = true;
 		}
-		
+		if (hostname == "HomeAutomation - MyQ"){
+			logger.info("Recieved a door post from MyQ");
+		}
 		else{
 			logger.warn("Recieved a door post that wasn't from the GarageArduino");
 		}
@@ -158,27 +160,19 @@ module.exports = {
 		});
 	},
 	
-	exposedDoorState: function(callback){
-		watcher.exposedDoorState(function(state){
-			if (state == "Unknown"){
-				mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (err, doorState) {
-			         if (err) {
-			             logger.error(err);
-			             return callback(state);
-			         } else {
-			        	 if (doorState){
-			        		 return callback(doorState.state);
-			        	 }
-			        	 else{
-			        		 logger.debug("Nothing found to return");
-			        		 return callback("none");
-			        	 }
-			         }
-				});
+	exposedDoorState: function(door, callback){
+		mongoose.model('DoorState').findOne({door: door}, {}, { sort: { _id : -1 } }, function (err, doorState) {
+			if (err) {
+				logger.error(err);
+				return callback("Unknown due to error");
+			} else {
+				if (doorState){
+					return callback(doorState.state);
+				}else{
+					logger.debug("Nothing found to return");
+					return callback("none");
+				}
 			}
-			else {
-				return callback(state);
-			}	
 		});
 	},
 	
