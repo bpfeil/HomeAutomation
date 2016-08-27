@@ -293,9 +293,7 @@ var postDoorState = function(name, state){
 
 	var options = {
 	  "method": "POST",
-	  //"hostname": "pfeilsplace.com",
 	  "hostname": "localhost",
-	  //"port": "80",
 	  "port": "3001",
 	  "path": "/api/door",
 	  "headers": {
@@ -314,7 +312,7 @@ var postDoorState = function(name, state){
 
 	  res.on("end", function () {
 	    var body = Buffer.concat(chunks);
-	    console.log(body.toString());
+	    //console.log(body.toString());
 	  });
 	});
 
@@ -330,7 +328,6 @@ setInterval(function(){
 			logger.error(err);
 		}
 		else {
-			console.log(typeof(results));
 			results.forEach(function(item){
 				name = Object.keys(item)[0];
 				state = item[name];

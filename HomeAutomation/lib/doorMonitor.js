@@ -5,7 +5,7 @@ var mongoose = require('mongoose'); //mongo connection
 
 var notifyTime, alerts, alertTime;
 var lastDoorStateChange = new Date();
-var currentDoorState = "Not set";
+var currentDoorState = {};
 var lastAlert = new Date();
 
 var getSettings = function(){
@@ -31,8 +31,9 @@ mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (er
 	} else {
 		if (lastState){
 			console.log(lastState);
-			currentDoorState = lastState.state;
-			mongoose.model('DoorState').findOne({"state": {$ne: currentDoorState}},{}, { sort: { _id : -1}}, function(err,lastChange){
+			door = lastState.door;
+			currentDoorState[door] = lastState.state;
+			mongoose.model('DoorState').findOne({"state": {$ne: currentDoorState[door]}},{}, { sort: { _id : -1}}, function(err,lastChange){
 				if (err) {
 					logger.error(err);
 				}
@@ -56,11 +57,12 @@ mongoose.model('DoorState').findOne({}, {}, { sort: { _id : -1 } }, function (er
 });
 
 module.exports = {
-	doorAlert: function doorStateAlert(doorState){
+	doorAlert: function doorStateAlert(door, doorState){
 		var action, desc;
 		now = new Date();
-		if (doorState != currentDoorState){
-			if (currentDoorState == "Closed"){
+		console.log(currentDoorState);
+		if (doorState != currentDoorState[door]){
+			if (currentDoorState[door] == "Closed"){
 				action = "Opening";
 			}
 			/*else if(currentDoorState == "Open"){
@@ -69,13 +71,15 @@ module.exports = {
 			else if (currentDoorState == "Moving"){
 				action = doorState;
 			}*/
-			if (currentDoorState == "Closed"){
-				desc = "Door changed from " + currentDoorState + " to " + doorState;
+			if (currentDoorState[door] == "Closed"){
+				desc = "Door changed from " + currentDoorState[door] + " to " + doorState;
 				pushbullet.pushNote("Garage Door", action, desc);
-				logger.debug("Resetting doorstate from " + currentDoorState + " to " + doorState);
+				logger.debug("Resetting doorstate from " + currentDoorState[door] + " to " + doorState);
 				
 			}
-			currentDoorState = doorState;
+			
+			currentDoorState[door] = doorState;
+			
 			lastDoorStateChange = new Date();
 		}
 		else{

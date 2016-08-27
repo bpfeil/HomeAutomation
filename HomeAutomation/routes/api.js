@@ -65,10 +65,11 @@ router.route('/door')
     	worker.arduinoWatcher(req.headers.host);
     	var state = req.body.doorState;
     	var door = req.body.door;
-    	logger.debug('POST creating new doorState: ' + state);
-    	doorMonitor.doorAlert(state);
+    	logger.debug('POST creating new doorState: ' + state + " for " + door);
+    	doorMonitor.doorAlert(door, state);
     	worker.exposedDoorState(door, function(dbState){
     		if (dbState != state){
+    			console.log(dbState);
     			console.log("Updating DB");
     			mongoose.model('DoorState').create({
     				door : door,
@@ -89,7 +90,7 @@ router.route('/door')
     	        });
     		}
     		else {
-    			console.log("no need to update");
+    			logger.debug("No need to update door state for " + door);
     			res.format({
                     //JSON response
                     json: function(){
@@ -139,7 +140,6 @@ router.get('/door/trigger/:id', function(req, res) {
 				});
 			}
 			if (methods.myQ === true){
-				//Call myQ
 				myQ.triggerDoor(function(err,success){
 					if (err){
 						logger.error(err);
