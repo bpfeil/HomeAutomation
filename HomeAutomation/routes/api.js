@@ -158,6 +158,84 @@ router.get('/door/trigger/:id', function(req, res) {
 	});
 });
 
+router.post('/door/close/:id', function(req, res) {
+	var door = req.body.door;
+	worker.openingMethod(function(err, methods){
+		if (err){
+			res.render(err);
+		}
+		else {
+			methods = JSON.parse(methods);
+			
+			
+			if (methods.arduino === true){
+				trigger.sendTrigger(function(status) {
+					logger.debug("Response " + status);
+					res.render('api/doorTrigger', { 
+				    	title: 'Trigger',
+				    	"triggerStatus": status});
+				});
+			}
+			if (methods.myQ === true){
+				myQ.closeDoorDirect(door, function(err,success){
+					if (err){
+						logger.error(err);
+					}else {
+						res.format({
+			        		  json: function(){
+			        			  res.json({"DoorStatus" : success});
+			        		  }
+						});
+					}
+				});
+			}
+			else {
+				res.json({"Status": "Nothing enabled to open doors"});
+				pushBullet.pushNote("Door Not Triggered", "No devices enabled for garage doors.");
+			}
+		}
+	});
+});
+
+router.post('/door/open/:id', function(req, res) {
+	var door = req.body.door;
+	worker.openingMethod(function(err, methods){
+		if (err){
+			res.render(err);
+		}
+		else {
+			methods = JSON.parse(methods);
+			
+			
+			if (methods.arduino === true){
+				trigger.sendTrigger(function(status) {
+					logger.debug("Response " + status);
+					res.render('api/doorTrigger', { 
+				    	title: 'Trigger',
+				    	"triggerStatus": status});
+				});
+			}
+			if (methods.myQ === true){
+				myQ.openDoorDirect(door, function(err,success){
+					if (err){
+						logger.error(err);
+					}else {
+						res.format({
+			        		  json: function(){
+			        			  res.json({"DoorStatus" : success});
+			        		  }
+						});
+					}
+				});
+			}
+			else {
+				res.json({"Status": "Nothing enabled to open doors"});
+				pushBullet.pushNote("Door Not Triggered", "No devices enabled for garage doors.");
+			}
+		}
+	});
+});
+
 router.get('/home', function(req, res){
 	var whoHome = [];
 	mongoose.model('Home').find({},{}, { sort: { _id : -1}}, function(err,who){
